@@ -98,7 +98,7 @@ void kmeans(){
     geometricCenter();
 
     // 3,4
-    while(numIterations<10) {
+    while(numIterations<39) {
 
         printf("Number of iterations : %d\n", numIterations);
 
@@ -110,6 +110,11 @@ void kmeans(){
     printf("\nkmeans\n");
 
     printf("Number of iterations: %d\n", numIterations);
+    for (int i = 0; i < K; i++){
+
+    printf("Center of cluster %d: %f\n", i, geometricCenterX[i]);
+    printf("Center of cluster %d: %f\n", i, geometricCenterY[i]);
+    }
 
 }
 
