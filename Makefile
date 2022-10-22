@@ -4,7 +4,7 @@ SRC = src/
 INCLUDES = include/
 EXEC = k_means
 
-CFLAGS = -O0 -g -Wall -Wextra
+CFLAGS = -O2 -g -Wall -Wextra
 
 LIBS = -lm
 
