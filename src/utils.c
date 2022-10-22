@@ -36,12 +36,12 @@ void initialize(){
 
 void testIniatialize(){
     printf("First 4 positions of matrix:\n");
-    for(int i=0; i<4; i++){
+    for(int i=0; i<4; i++){ //K: 4
         printf("x: %f || y: %f\n", x[i], y[i]);
     }
 
     printf("\nCluster:\n");
-    for(int i=0; i<2; i++){
+    for(int i=0; i<K; i++){
         printf("x: %f || y: %f\n", clusterX[i][0], clusterY[i][0]);
     }
 }
@@ -100,20 +100,19 @@ void kmeans(){
     // 3,4
     while(numIterations<39) {
 
-        printf("Number of iterations : %d\n", numIterations);
+        printf("Number of iteration : %d\n", numIterations+1);
 
         attribution(0);
 
         numIterations++;
     }
 
-    printf("\nkmeans\n");
+    //printf("\nkmeans\n");
 
-    printf("Number of iterations: %d\n", numIterations);
+    //printf("Number of iterations: %d\n", numIterations);
+    printf("N = %d, K = %d\n",N,K);
     for (int i = 0; i < K; i++){
-
-    printf("Center of cluster %d: %f\n", i, geometricCenterX[i]);
-    printf("Center of cluster %d: %f\n", i, geometricCenterY[i]);
+        printf("Center: (%f , %f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterLastPos[i]);
     }
 
 }

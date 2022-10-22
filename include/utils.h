@@ -1,3 +1,5 @@
+//#define N 256 // 10 000 000
+//#define K 2  // 4
 #define N 256 // 10 000 000
 #define K 2  // 4
 
