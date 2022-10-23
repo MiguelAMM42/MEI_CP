@@ -50,6 +50,40 @@ void testIniatialize(){
 
 // 1(c)
 
+/*
+//Old version, more intuitive
+int attribution(int init){
+    int change = 0;
+    // No início de cada atribuição, temos de fingir que os clusters estão vazios.
+    for (int i = init; i < K; i++){
+        clusterCurrentPos[i] = 0;
+    }
+    for(int i=init; i<N; i++){
+        float clusterMin = (float)RAND_MAX;
+        int bestCluster = -1;
+        for (int cluster=0; cluster<K; cluster++) {
+           // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)1.0); 
+            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2) 1.0); 
+            if (distCluster < clusterMin) {
+                clusterMin = distCluster;
+                bestCluster = cluster;
+            }
+        }
+        // attribution
+        float oldXPos = clusterX[bestCluster][clusterCurrentPos[bestCluster]];
+        float oldYPos = clusterY[bestCluster][clusterCurrentPos[bestCluster]];
+
+        clusterX[bestCluster][clusterCurrentPos[bestCluster]] = x[i];
+        clusterY[bestCluster][clusterCurrentPos[bestCluster]] = y[i];
+        clusterCurrentPos[bestCluster]++;
+        if(oldXPos != x[i] && oldYPos != y[i]){
+            change = 2;
+        }
+    }
+    return change;
+}
+*/
+
 int attribution(int init){
     int change = 0;
     // No início de cada atribuição, temos de fingir que os clusters estão vazios.
