@@ -56,7 +56,8 @@ int attribution(int init){
     for (int i = init; i < K; i++){
         clusterCurrentPos[i] = 0;
     }
-    for(int i=init; i<N; i++){
+    int i = init;
+    for(; i<N && !change; i++){
         float clusterMin = (float)RAND_MAX;
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
@@ -74,9 +75,25 @@ int attribution(int init){
         clusterX[bestCluster][clusterCurrentPos[bestCluster]] = x[i];
         clusterY[bestCluster][clusterCurrentPos[bestCluster]] = y[i];
         clusterCurrentPos[bestCluster]++;
-        if(oldXPos != x[i] && oldYPos != y[i]){
+        if(oldXPos != x[i] || oldYPos != y[i]){
             change = 2;
         }
+    }
+    for(; i<N; i++){
+        float clusterMin = (float)RAND_MAX;
+        int bestCluster = -1;
+        for (int cluster=0; cluster<K; cluster++) {
+           // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
+            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)* 1.0); 
+            if (distCluster < clusterMin) {
+                clusterMin = distCluster;
+                bestCluster = cluster;
+            }
+        }
+        // attribution
+        clusterX[bestCluster][clusterCurrentPos[bestCluster]] = x[i];
+        clusterY[bestCluster][clusterCurrentPos[bestCluster]] = y[i];
+        clusterCurrentPos[bestCluster]++;
     }
     return change;
 }

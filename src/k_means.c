@@ -4,7 +4,7 @@
 int main() {
    
     initialize();
-    testIniatialize();  
+    //testIniatialize();  
     // começar em K pq o K-1 já estão no cluster
     attribution(K);
     kmeans();
