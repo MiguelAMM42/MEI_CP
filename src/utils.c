@@ -21,9 +21,11 @@ float geometricCenterY[K];
 // 1(a) e (b)
 void initialize(){
     srand(10);
+    float inv =(float) 1 / RAND_MAX;
+    // Depois mudar isto!!! Multiplicar pelo inverso
     for(int i=0; i<N; i++){
-        x[i] = (float)rand()/(float)RAND_MAX;
-        y[i] = (float)rand()/(float)RAND_MAX;
+        x[i] = (float)rand()*inv;
+        y[i] = (float)rand()*inv;
     }
     for(int i=0; i<K; i++){
         clusterX[i][0] = x[i];
@@ -58,8 +60,9 @@ int attribution(int init){
         float clusterMin = (float)RAND_MAX;
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
-            float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)); 
-            if (distCluster <= clusterMin) {
+           // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
+            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)* 1.0); 
+            if (distCluster < clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
             }
@@ -108,6 +111,8 @@ void kmeans(){
     // 3,4
     int change = 2;// TRUE: 2; FALSE: 0 ; 2 is easier for shift than 1  
     while(change!=0) {
+    
+    //while(numberOfIterations < 39) {
 
         printf("Iteraction number : %d\n", numberOfIterations+1);
         geometricCenter();
