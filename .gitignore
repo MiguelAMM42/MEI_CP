@@ -54,3 +54,4 @@ dkms.conf
 .vscode
 
 */k_means
+*.s
