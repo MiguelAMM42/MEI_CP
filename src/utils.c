@@ -97,7 +97,7 @@ int attribution(int init){
         for (int cluster=0; cluster<K; cluster++) {
            // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
             float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)* 1.0); 
-            if (distCluster < clusterMin) {
+            if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
             }
@@ -119,7 +119,7 @@ int attribution(int init){
         for (int cluster=0; cluster<K; cluster++) {
            // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
             float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)* 1.0); 
-            if (distCluster < clusterMin) {
+            if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
             }
@@ -153,11 +153,11 @@ void geometricCenter(){
 // 3,4
 
 void kmeans(){
-
+    attribution(K);
     int numberOfIterations = 1;
 
     // 2
-    //geometricCenter();
+    geometricCenter();
 
     // 3,4
     int change = 2;// TRUE: 2; FALSE: 0 ; 2 is easier for shift than 1  
@@ -166,9 +166,9 @@ void kmeans(){
     //while(numberOfIterations < 39) {
 
         printf("Iteraction number : %d\n", numberOfIterations+1);
-        geometricCenter();
-        change  = attribution(0);
         //geometricCenter();
+        change  = attribution(0);
+        geometricCenter();
         numberOfIterations++;
     }
 
