@@ -7,8 +7,8 @@
 float x[N];
 float y[N];
 
-float clusterX[K][N];
-float clusterY[K][N];
+int clusterPos[K][N];
+
 
 int clusterCurrentPos[K];
 
@@ -21,18 +21,17 @@ float geometricCenterY[K];
 // 1(a) e (b)
 void initialize(){
     srand(10);
-    float inv =(float) 1 / RAND_MAX;
+    float inv =(float)1 / (float)RAND_MAX;
     // Depois mudar isto!!! Multiplicar pelo inverso
     for(int i=0; i<N; i++){
         x[i] = (float)rand()*inv;
         y[i] = (float)rand()*inv;
     }
     for(int i=0; i<K; i++){
-        clusterX[i][0] = x[i];
-        clusterY[i][0] = y[i];
+        clusterPos[i][0] = i;
         clusterCurrentPos[i] = 0;
-        geometricCenterX[i] = x[i];
-        geometricCenterY[i] = y[i];
+        //geometricCenterX[i] = x[i];
+        //geometricCenterY[i] = y[i];
     }
 }
 
@@ -44,45 +43,11 @@ void testIniatialize(){
 
     printf("\nCluster:\n");
     for(int i=0; i<K; i++){
-        printf("x: %f || y: %f\n", clusterX[i][0], clusterY[i][0]);
+        printf("x: %f || y: %f\n", x[clusterPos[i][0]], y[clusterPos[i][0]]);
     }
 }
 
-// 1(c)
 
-/*
-//Old version, more intuitive
-int attribution(int init){
-    int change = 0;
-    // No início de cada atribuição, temos de fingir que os clusters estão vazios.
-    for (int i = init; i < K; i++){
-        clusterCurrentPos[i] = 0;
-    }
-    for(int i=init; i<N; i++){
-        float clusterMin = (float)RAND_MAX;
-        int bestCluster = -1;
-        for (int cluster=0; cluster<K; cluster++) {
-           // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)1.0); 
-            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2) 1.0); 
-            if (distCluster < clusterMin) {
-                clusterMin = distCluster;
-                bestCluster = cluster;
-            }
-        }
-        // attribution
-        float oldXPos = clusterX[bestCluster][clusterCurrentPos[bestCluster]];
-        float oldYPos = clusterY[bestCluster][clusterCurrentPos[bestCluster]];
-
-        clusterX[bestCluster][clusterCurrentPos[bestCluster]] = x[i];
-        clusterY[bestCluster][clusterCurrentPos[bestCluster]] = y[i];
-        clusterCurrentPos[bestCluster]++;
-        if(oldXPos != x[i] && oldYPos != y[i]){
-            change = 2;
-        }
-    }
-    return change;
-}
-*/
 
 int attribution(int init){
     int change = 0;
@@ -96,21 +61,20 @@ int attribution(int init){
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
            // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
-            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)* 1.0); 
+            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
             }
         }
         // attribution
-        float oldXPos = clusterX[bestCluster][clusterCurrentPos[bestCluster]];
-        float oldYPos = clusterY[bestCluster][clusterCurrentPos[bestCluster]];
+        float oldXPos = x[clusterPos[bestCluster][clusterCurrentPos[bestCluster]]];
+        float oldYPos = y[clusterPos[bestCluster][clusterCurrentPos[bestCluster]]];
 
-        clusterX[bestCluster][clusterCurrentPos[bestCluster]] = x[i];
-        clusterY[bestCluster][clusterCurrentPos[bestCluster]] = y[i];
+        clusterPos[bestCluster][clusterCurrentPos[bestCluster]] = i;
         clusterCurrentPos[bestCluster]++;
         if(oldXPos != x[i] || oldYPos != y[i]){
-            change = 2;
+            change = 1;
         }
     }
     for(; i<N; i++){
@@ -118,15 +82,14 @@ int attribution(int init){
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
            // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
-            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)* 1.0); 
+            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
             }
         }
         // attribution
-        clusterX[bestCluster][clusterCurrentPos[bestCluster]] = x[i];
-        clusterY[bestCluster][clusterCurrentPos[bestCluster]] = y[i];
+        clusterPos[bestCluster][clusterCurrentPos[bestCluster]] = i;
         clusterCurrentPos[bestCluster]++;
     }
     return change;
@@ -141,8 +104,8 @@ void geometricCenter(){
         tmpX = 0;
         tmpY = 0;
         for(int j = 0 ; j <= clusterCurrentPos[cluster]; j++){
-            tmpX += clusterX[cluster][j];
-            tmpY += clusterY[cluster][j];
+            tmpX += x[clusterPos[cluster][j]];
+            tmpY += y[clusterPos[cluster][j]];
         }
         geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
         geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
@@ -153,23 +116,24 @@ void geometricCenter(){
 // 3,4
 
 void kmeans(){
-    attribution(K);
-    int numberOfIterations = 1;
+    //attribution(K);
+    // 0 já aconteceu
+    int iterationNumber = 1;
 
     // 2
-    geometricCenter();
+    //geometricCenter();
 
     // 3,4
-    int change = 2;// TRUE: 2; FALSE: 0 ; 2 is easier for shift than 1  
+    int change = 1;// TRUE: 1; FALSE: 0 ; 2 is easier for shift than 1  
     while(change!=0) {
     
-    //while(numberOfIterations < 39) {
+    //while(numberOfIterations < 38) {
 
-        printf("Iteraction number : %d\n", numberOfIterations+1);
-        //geometricCenter();
-        change  = attribution(0);
+        //printf("Iteraction number : %d\n", iterationNumber);
         geometricCenter();
-        numberOfIterations++;
+        change  = attribution(0);
+        //geometricCenter();
+        iterationNumber++;
     }
 
     //printf("\nkmeans\n");
@@ -179,7 +143,7 @@ void kmeans(){
     for(int i = 0; i < K; i++){
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterCurrentPos[i]);
     }
-    printf("Iterations : %d\n", numberOfIterations);
+    printf("Iterations : %d\n", iterationNumber);
 
 }
 
