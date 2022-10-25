@@ -26,13 +26,31 @@ void initialize(){
     for(int i=0; i<N; i++){
         x[i] = (float)rand()*inv;
         y[i] = (float)rand()*inv;
+
+        /*
+        x[i+1] = (float)rand()*inv;
+        y[i+1] = (float)rand()*inv;
+        x[i+2] = (float)rand()*inv;
+        y[i+2] = (float)rand()*inv;
+        x[i+3] = (float)rand()*inv;
+        y[i+3] = (float)rand()*inv;*/
     }
     for(int i=0; i<K; i++){
         clusterPos[i][0] = i;
         clusterCurrentPos[i] = 0;
         //geometricCenterX[i] = x[i];
         //geometricCenterY[i] = y[i];
+
+        /*
+        clusterPos[i+1][0] = i+1;
+        clusterCurrentPos[i+1] = 0;
+        clusterPos[i+2][0] = i+2;
+        clusterCurrentPos[i] = 0;
+        clusterPos[i+3][0] = i+3;
+        clusterCurrentPos[i+3] = 0;*/
     }
+
+    
 }
 
 void testIniatialize(){
@@ -60,8 +78,12 @@ int attribution(int init){
         float clusterMin = (float)RAND_MAX;
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
-           // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
-            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)); 
+            //float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
+            //float distCluster = sqrt((x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster])*1.0); 
+            float distCluster = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
+            //float distCluster = pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2); 
+            //printf("%f || %f\n",distCluster,distCluster_pow);
+            //float distCluster = fabsf(geometricCenterX[cluster] - x[i]) + fabsf(geometricCenterY[cluster] - y[i]); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
@@ -81,8 +103,12 @@ int attribution(int init){
         float clusterMin = (float)RAND_MAX;
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
-           // float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
-            float distCluster = sqrt( pow(x[i] -geometricCenterX[cluster], 2) + pow(y[i] - geometricCenterY[cluster], 2)); 
+            //float distCluster = sqrt((x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster])*1.0); 
+            //float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
+            float distCluster = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
+            //float distCluster = pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2); 
+            //printf("%f || %f\n",distCluster,distCluster_pow);
+            //float distCluster = fabsf(geometricCenterX[cluster] - x[i]) + fabsf(geometricCenterY[cluster] - y[i]); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
@@ -127,7 +153,7 @@ void kmeans(){
     int change = 1;// TRUE: 1; FALSE: 0 ; 2 is easier for shift than 1  
     while(change!=0) {
     
-    //while(numberOfIterations < 38) {
+    //while(iterationNumber < 39) {
 
         //printf("Iteraction number : %d\n", iterationNumber);
         geometricCenter();
