@@ -4,7 +4,7 @@ SRC = src/
 INCLUDES = include/
 EXEC = k_means
 
-CFLAGS = -O2 -g -Wall -Wextra 
+CFLAGS = -O3 -g -Wall -Wextra 
 CFLAGSASS = -O2 -g -Wall -Wextra -funroll-loops
 ASSEMBLY = -S -o
 LIBS = -lm

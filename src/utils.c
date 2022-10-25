@@ -38,8 +38,8 @@ void initialize(){
     for(int i=0; i<K; i++){
         clusterPos[i][0] = i;
         clusterCurrentPos[i] = 0;
-        //geometricCenterX[i] = x[i];
-        //geometricCenterY[i] = y[i];
+        geometricCenterX[i] = x[i];
+        geometricCenterY[i] = y[i];
 
         /*
         clusterPos[i+1][0] = i+1;
@@ -129,7 +129,14 @@ void geometricCenter(){
     for(int cluster = 0; cluster < K; cluster++) {
         tmpX = 0;
         tmpY = 0;
-        for(int j = 0 ; j <= clusterCurrentPos[cluster]; j++){
+        int j = 0;
+        for(; j <= clusterCurrentPos[cluster]-1; j+=2){
+            tmpX += x[clusterPos[cluster][j]];
+            tmpY += y[clusterPos[cluster][j]];
+            tmpX += x[clusterPos[cluster][j+1]];
+            tmpY += y[clusterPos[cluster][j+1]];
+        }
+        while (j <= clusterCurrentPos[cluster]){
             tmpX += x[clusterPos[cluster][j]];
             tmpY += y[clusterPos[cluster][j]];
         }
