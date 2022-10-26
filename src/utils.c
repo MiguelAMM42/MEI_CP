@@ -3,7 +3,11 @@
 #include <math.h>
 #include "../include/utils.h"
 
-
+/*
+In this two arrays we store all the samples.
+Each array has the x and y component of each sample.
+We use align to improve vetorization.
+*/
 float x[N]  __attribute__ ((aligned (32)));
 float y[N]  __attribute__ ((aligned (32)));
 
