@@ -23,17 +23,21 @@ void initialize(){
     srand(10);
     float inv =(float)1 / (float)RAND_MAX;
     // Depois mudar isto!!! Multiplicar pelo inverso
-    for(int i=0; i<N; i++){
+    int i;
+    for(int i; i<N-4; i+=4){
         x[i] = (float)rand()*inv;
         y[i] = (float)rand()*inv;
 
-        /*
         x[i+1] = (float)rand()*inv;
         y[i+1] = (float)rand()*inv;
         x[i+2] = (float)rand()*inv;
         y[i+2] = (float)rand()*inv;
         x[i+3] = (float)rand()*inv;
-        y[i+3] = (float)rand()*inv;*/
+        y[i+3] = (float)rand()*inv;
+    }
+    while ( i < N){
+        x[i] = (float)rand()*inv;
+        y[i] = (float)rand()*inv;
     }
     for(int i=0; i<K; i++){
         clusterPos[i][0] = i;
@@ -157,12 +161,6 @@ void geometricCenter(){
             tmpX += x[clusterPos[cluster][j]];
             tmpY += y[clusterPos[cluster][j]];
         }
-        /*
-        while (j <= clusterCurrentPos[cluster]){
-            tmpX += x[clusterPos[cluster][j]];
-            tmpY += y[clusterPos[cluster][j]];
-        }
-        */
         geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
         geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
     }
