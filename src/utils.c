@@ -124,16 +124,18 @@ int attribution(int init){
 
 // 2
 // Versão com loop
-void geometricCenter(){
+void geometricCenter2(){
     float tmpX;
     float tmpY;
     for(int cluster = 0; cluster < K; cluster++) {
-        tmpX = 0;
-        tmpY = 0;
         int j = 0;
-        for(; j <= clusterCurrentPos[cluster]-2; j++){
+        for(; j <= clusterCurrentPos[cluster]-2; j=+2){
             tmpX += x[clusterPos[cluster][j]];
             tmpY += y[clusterPos[cluster][j]];
+            tmpX += x[clusterPos[cluster][j+1]];
+            tmpY += y[clusterPos[cluster][j+1]];
+
+            
         }
         while (j <= clusterCurrentPos[cluster]){
             tmpX += x[clusterPos[cluster][j]];
@@ -144,7 +146,7 @@ void geometricCenter(){
     }
 }
 // Versão sem loop unrolling
-void geometricCenter2(){
+void geometricCenter(){
     float tmpX;
     float tmpY;
     for(int cluster = 0; cluster < K; cluster++) {
