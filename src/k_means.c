@@ -3,7 +3,7 @@
 
 int main() {
    
-    initialize();
+    initialize2();
     //testIniatialize();  
     attribution(K);
     kmeans();

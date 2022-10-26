@@ -23,11 +23,30 @@ void initialize(){
     srand(10);
     float inv =(float)1 / (float)RAND_MAX;
     int i;
+    for(i=0; i<N; i++){
+        x[i] = (float)rand()*inv;
+        y[i] = (float)rand()*inv;
+    }
+
+    for(int i=0; i<K; i++){
+        clusterPos[i][0] = i;
+        clusterCurrentPos[i] = 0;
+        geometricCenterX[i] = x[i];
+        geometricCenterY[i] = y[i];
+    }
+
+    
+}
+
+
+void initialize2(){
+    srand(10);
+    float inv =(float)1 / (float)RAND_MAX;
+    int i;
     for(i=0; i<N-4; i+=4){
         x[i] = (float)rand()*inv;
         y[i] = (float)rand()*inv;
-
-        
+ 
         x[i+1] = (float)rand()*inv;
         y[i+1] = (float)rand()*inv;
         x[i+2] = (float)rand()*inv;
@@ -46,14 +65,6 @@ void initialize(){
         clusterCurrentPos[i] = 0;
         geometricCenterX[i] = x[i];
         geometricCenterY[i] = y[i];
-
-        /*
-        clusterPos[i+1][0] = i+1;
-        clusterCurrentPos[i+1] = 0;
-        clusterPos[i+2][0] = i+2;
-        clusterCurrentPos[i] = 0;
-        clusterPos[i+3][0] = i+3;
-        clusterCurrentPos[i+3] = 0;*/
     }
 
     
@@ -88,8 +99,6 @@ int attribution(int init){
             //float distCluster = sqrt((x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster])*1.0); 
             float distCluster = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
             //float distCluster = pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2); 
-            //printf("%f || %f\n",distCluster,distCluster_pow);
-            //float distCluster = fabsf(geometricCenterX[cluster] - x[i]) + fabsf(geometricCenterY[cluster] - y[i]); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
@@ -113,8 +122,6 @@ int attribution(int init){
             //float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
             float distCluster = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
             //float distCluster = pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2); 
-            //printf("%f || %f\n",distCluster,distCluster_pow);
-            //float distCluster = fabsf(geometricCenterX[cluster] - x[i]) + fabsf(geometricCenterY[cluster] - y[i]); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
@@ -163,12 +170,7 @@ void geometricCenter(){
             tmpX += x[clusterPos[cluster][j]];
             tmpY += y[clusterPos[cluster][j]];
         }
-        /*
-        while (j <= clusterCurrentPos[cluster]){
-            tmpX += x[clusterPos[cluster][j]];
-            tmpY += y[clusterPos[cluster][j]];
-        }
-        */
+        
         geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
         geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
     }
@@ -178,29 +180,17 @@ void geometricCenter(){
 // 3,4
 
 void kmeans(){
-    //attribution(K);
     // 0 já aconteceu
     int iterationNumber = 1;
 
-    // 2
-    //geometricCenter();
-
     // 3,4
-    int change = 1;// TRUE: 1; FALSE: 0 ; 2 is easier for shift than 1  
+    int change = 1;// TRUE: 1; FALSE: 0 ;
     while(change!=0) {
-    
-    //while(iterationNumber < 39) {
-
-        //printf("Iteraction number : %d\n", iterationNumber);
         geometricCenter2();
         change  = attribution(0);
-        //geometricCenter();
         iterationNumber++;
     }
 
-    //printf("\nkmeans\n");
-
-    //printf("Number of iterations: %d\n", numIterations);
     printf("N = %d, K = %d\n",N,K);
     for(int i = 0; i < K; i++){
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterCurrentPos[i]);
