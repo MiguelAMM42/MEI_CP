@@ -7,22 +7,29 @@
 In this two arrays we store all the samples.
 Each array has the x and y component of each sample.
 We use align to improve vetorization.
+This array's are constant during the execution of the programme.
 */
 float x[N]  __attribute__ ((aligned (32)));
 float y[N]  __attribute__ ((aligned (32)));
 
+/*
+In the next matrix, we associate each sample to one cluster.
+Each line corresponds to one cluster. Each position in line stores the position of the sample in the x and y array.
+*/
 int clusterPos[K][N];
 
-
+// In this array we store the current position occupied in the clusterPos matrix.
 int clusterCurrentPos[K];
 
 
-// depois pode ficar um array e acede-se a 2 de cada vez
+// In the next two arrays we store the geometric center of each cluster. 
+// Each array stores the x and y component of each geometric center.
 float geometricCenterX[K];
 float geometricCenterY[K];
 
 
 // 1(a) e (b)
+// Here we initialize all samples, and clusters.
 void initialize(){
     srand(10);
     float inv =(float)1 / (float)RAND_MAX;
@@ -33,8 +40,10 @@ void initialize(){
     }
 
     for(int i=0; i<K; i++){
+        // Each cluster has one sample.
         clusterPos[i][0] = i;
         clusterCurrentPos[i] = 0;
+        // The geometric center of the cluster in the initialization corresponds to the only sample they got.
         geometricCenterX[i] = x[i];
         geometricCenterY[i] = y[i];
     }
