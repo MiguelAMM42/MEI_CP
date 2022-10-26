@@ -51,7 +51,7 @@ void initialize(){
     
 }
 
-
+// Equal to the previous version, but with loop unrolling.
 void initialize2(){
     srand(10);
     float inv =(float)1 / (float)RAND_MAX;
@@ -83,6 +83,7 @@ void initialize2(){
     
 }
 
+// Function to print the information of the initialization of the program.
 void testIniatialize(){
     printf("First 4 positions of matrix:\n");
     for(int i=0; i<4; i++){ //K: 4
@@ -96,7 +97,12 @@ void testIniatialize(){
 }
 
 
-
+/*
+Here we atribute the samples to the clusters.
+We keep other ways of checking distances so we could test in the future other versions of our program.
+Also, we have two cycles because we check here if the clusters has changes to the previous versions. 
+So, to avoid checking N*K times if the cluster has changed, we have the change flag. When we find changes, we stop checking. 
+*/
 int attribution(int init){
     int change = 0;
     // No início de cada atribuição, temos de fingir que os clusters estão vazios.
@@ -117,12 +123,14 @@ int attribution(int init){
                 bestCluster = cluster;
             }
         }
-        // attribution
+        // Previous positions of the clusters.
+        //                           current cluster|position that we want                                        
         float oldXPos = x[clusterPos[bestCluster][clusterCurrentPos[bestCluster]]];
         float oldYPos = y[clusterPos[bestCluster][clusterCurrentPos[bestCluster]]];
 
         clusterPos[bestCluster][clusterCurrentPos[bestCluster]] = i;
         clusterCurrentPos[bestCluster]++;
+        // Check if the clusters has changed.
         if(oldXPos != x[i] || oldYPos != y[i]){
             change = 1;
         }
@@ -147,9 +155,26 @@ int attribution(int init){
     return change;
 }
 
+// Calculate geometric centers.
+void geometricCenter(){
+    float tmpX;
+    float tmpY;
+    for(int cluster = 0; cluster < K; cluster++) {
+        tmpX = 0;
+        tmpY = 0;
+        int j = 0;
+        for(; j <= clusterCurrentPos[cluster]; j++){
+            tmpX += x[clusterPos[cluster][j]];
+            tmpY += y[clusterPos[cluster][j]];
+        }
+        
+        geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
+        geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
+    }
+}
 
 // 2
-// Versão com loop
+// Equal to the previous version, but with loop unrolling.
 void geometricCenter2(){
     for(int cluster = 0; cluster < K; cluster++) {
         float tmpX = 0;
@@ -167,23 +192,6 @@ void geometricCenter2(){
             tmpY += y[clusterPos[cluster][j]];
             j++;
         }
-        geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
-        geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
-    }
-}
-// Versão sem loop unrolling
-void geometricCenter(){
-    float tmpX;
-    float tmpY;
-    for(int cluster = 0; cluster < K; cluster++) {
-        tmpX = 0;
-        tmpY = 0;
-        int j = 0;
-        for(; j <= clusterCurrentPos[cluster]; j++){
-            tmpX += x[clusterPos[cluster][j]];
-            tmpY += y[clusterPos[cluster][j]];
-        }
-        
         geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
         geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
     }
