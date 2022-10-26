@@ -22,18 +22,24 @@ float geometricCenterY[K];
 void initialize(){
     srand(10);
     float inv =(float)1 / (float)RAND_MAX;
-    // Depois mudar isto!!! Multiplicar pelo inverso
-    for(int i=0; i<N; i++){
+    int i;
+    for(i=0; i<N-4; i+=4){
         x[i] = (float)rand()*inv;
         y[i] = (float)rand()*inv;
 
-        /*
+        
         x[i+1] = (float)rand()*inv;
         y[i+1] = (float)rand()*inv;
         x[i+2] = (float)rand()*inv;
         y[i+2] = (float)rand()*inv;
         x[i+3] = (float)rand()*inv;
-        y[i+3] = (float)rand()*inv;*/
+        y[i+3] = (float)rand()*inv;
+    }
+    while(i<N)
+    {
+        x[i] = (float)rand()*inv;
+        y[i] = (float)rand()*inv;
+        i++;
     }
     for(int i=0; i<K; i++){
         clusterPos[i][0] = i;
@@ -125,21 +131,21 @@ int attribution(int init){
 // 2
 // Versão com loop
 void geometricCenter2(){
-    float tmpX;
-    float tmpY;
     for(int cluster = 0; cluster < K; cluster++) {
+        float tmpX = 0;
+        float tmpY = 0;
         int j = 0;
-        for(; j <= clusterCurrentPos[cluster]-2; j=+2){
+        for(; j <= clusterCurrentPos[cluster]-2; j+=2){
             tmpX += x[clusterPos[cluster][j]];
             tmpY += y[clusterPos[cluster][j]];
             tmpX += x[clusterPos[cluster][j+1]];
             tmpY += y[clusterPos[cluster][j+1]];
-
             
         }
         while (j <= clusterCurrentPos[cluster]){
             tmpX += x[clusterPos[cluster][j]];
             tmpY += y[clusterPos[cluster][j]];
+            j++;
         }
         geometricCenterX[cluster] = tmpX/(clusterCurrentPos[cluster]+1);
         geometricCenterY[cluster] = tmpY/(clusterCurrentPos[cluster]+1);
@@ -186,7 +192,7 @@ void kmeans(){
     //while(iterationNumber < 39) {
 
         //printf("Iteraction number : %d\n", iterationNumber);
-        geometricCenter();
+        geometricCenter2();
         change  = attribution(0);
         //geometricCenter();
         iterationNumber++;
