@@ -199,9 +199,9 @@ void geometricCenter2(){
 
 
 // 3,4
-
+// Main function
 void kmeans(){
-    // 0 já aconteceu
+    // 0 already happen in main function
     int iterationNumber = 1;
 
     // 3,4
