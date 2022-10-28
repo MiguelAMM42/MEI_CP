@@ -38,6 +38,9 @@ assembly_loop:
 assembly_vec:
 	$(CC) $(ASSEMBLYVEC) $(BIN)k_means_assembly.s $(SRC)utils.c
 
+k_means: $(SRC)k_means.c $(BIN)utils.o
+	$(CC) $(CFLAGSLOOP) $(SRC)k_means.c $(BIN)utils.o -o $(BIN)$(EXEC) $(LIBS)
+
 clean:
 	rm -r bin/*
 
