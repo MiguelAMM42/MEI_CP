@@ -105,7 +105,7 @@ So, to avoid checking N*K times if the cluster has changed, we have the change f
 */
 int attribution(int init){
     int change = 0;
-    // No início de cada atribuição, temos de fingir que os clusters estão vazios.
+    // At the start of each atribution, the algorithm must consider the clusters empty.
     for (int i = init; i < K; i++){
         clusterCurrentPos[i] = 0;
     }
