@@ -4,8 +4,10 @@
 #define K 4  // 4
 
 void initialize();
+void initialize2();
 void testIniatialize();
 int attribution(int init);
 void geometricCenter();
+void geometricCenter2();
 void kmeans(); 
 
