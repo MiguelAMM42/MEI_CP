@@ -255,6 +255,14 @@ void kmeans(){
     }
     printf("Iterations : %d\n", iterationNumber);
 
+    free(x); 
+    free(y);  
+    free(clusterPos);
+    free(clusterCurrentPos);
+    free(geometricCenterX);
+    free(geometricCenterY);
+    
+
 }
 
 
