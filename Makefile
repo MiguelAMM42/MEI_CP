@@ -3,6 +3,8 @@ BIN = bin/
 SRC = src/
 INCLUDES = include/
 EXEC = k_means
+CP_CLUSTERS = 4
+THREADS = 2
 
 CFLAGSBASE = -O3  -fopenmp -Wall -Wextra 
 CFLAGSLOOP = -O3 -fopenmp -Wall -Wextra -funroll-loops
@@ -46,3 +48,9 @@ clean:
 
 run:
 	./$(BIN)$(EXEC)
+
+runseq:
+	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS) 
+
+runpar:
+	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS) $(THREADS)

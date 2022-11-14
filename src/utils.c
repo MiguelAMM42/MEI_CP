@@ -33,7 +33,7 @@ float *geometricCenterY;
 // Here we initialize all samples, and clusters.
 // 1(a) e (b)
 // Here we initialize all samples, and clusters.
-void initialize(){
+void initialize(int N, int K, int T){
     x = malloc(MAXN * sizeof(float));
     y = malloc(MAXN * sizeof(float));
 
@@ -82,7 +82,7 @@ We keep other ways of checking distances so we could test in the future other ve
 Also, we have two cycles because we check here if the clusters has changes to the previous versions. 
 So, to avoid checking N*K times if the cluster has changed, we have the change flag. When we find changes, we stop checking. 
 */
-int attribution(int init){
+int attribution(int init,int N, int K, int T){
     int change = 0;
     // At the start of each atribution, the algorithm must consider the clusters empty.
     
@@ -123,7 +123,7 @@ int attribution(int init){
 }
 
 // Calculate geometric centers.
-void geometricCenter(){
+void geometricCenter(int N, int K, int T){
 
     float sum_clusters_coord_X[K];
     float sum_clusters_coord_Y[K];
@@ -155,20 +155,21 @@ void geometricCenter(){
 
 // 3,4
 // Main function
-void kmeans(){
+void kmeans(int N, int K, int T){
     // 0 already happen in main function
     int iterationNumber = 0;
 
     // 3,4
-    int change = 1;// TRUE: 1; FALSE: 0 ;
+    //int change = 1;// TRUE: 1; FALSE: 0 ;
     while(iterationNumber < 21) {
     //while(change == 1) {
     //while(iterationNumber < 40) {
-        geometricCenter();
+        geometricCenter(N,K,T);
        // for(int i = 0; i < K; i++){
        //     printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterCurrentPos[i]);
        // }
-        change  = attribution(0);
+        //change  = attribution(0,N,K,T);
+        attribution(0,N,K,T);
         iterationNumber++;
     }
 
