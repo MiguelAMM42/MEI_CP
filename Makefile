@@ -4,12 +4,12 @@ SRC = src/
 INCLUDES = include/
 EXEC = k_means
 
-CFLAGSBASE = -O3 -g -Wall -Wextra 
-CFLAGSLOOP = -O3 -g -Wall -Wextra -funroll-loops
-CFLAGSVEC = -O3 -g -Wall -Wextra -ftree-vectorize -msse4
+CFLAGSBASE = -O3  -fopenmp -Wall -Wextra 
+CFLAGSLOOP = -O3 -fopenmp -Wall -Wextra -funroll-loops
+CFLAGSVEC = -O3 -fopenmp  -Wall -Wextra -ftree-vectorize -msse4
 ASSEMBLY = -S -o
-ASSEMBLYLOOP = -O3 -g -Wall -Wextra -funroll-loops -S -o
-ASSEMBLYVEC = -O3 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
+ASSEMBLYLOOP = -O2 -g -Wall -Wextra -funroll-loops -S -o
+ASSEMBLYVEC = -O2 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
 LIBS = -lm
 
 .DEFAULT_GOAL = k_means
