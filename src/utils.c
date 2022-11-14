@@ -26,15 +26,9 @@ int reallocSizeWich = 2;
 // Each array stores the x and y component of each geometric center.
 float *geometricCenterX;
 float *geometricCenterY;
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 
 
-// 1(a) e (b)
-// Here we initialize all samples, and clusters.
 // 1(a) e (b)
 // Here we initialize all samples, and clusters.
 // 1(a) e (b)
@@ -45,11 +39,7 @@ void initialize(){
 
     clusterCurrentPos = malloc(K * sizeof(int));
 
-<<<<<<< Updated upstream
-    wichCluster = malloc(MAXN * sizeof(float));
-=======
     wichCluster = malloc(N * sizeof(float));
->>>>>>> Stashed changes
 
     geometricCenterX = malloc(K * sizeof(float));
     geometricCenterY = malloc(K * sizeof(float));
@@ -65,7 +55,7 @@ void initialize(){
             y = realloc(y, MAXN * reallocSize * sizeof(float));
             reallocSize++;
             //printf("Olá");
-        }
+        } 
         x[i] = (float)rand()*inv;
         y[i] = (float)rand()*inv;
     }
@@ -82,13 +72,8 @@ void initialize(){
     
 }
 
-<<<<<<< Updated upstream
 
 
-=======
-
-
->>>>>>> Stashed changes
 
 
 /*
@@ -100,14 +85,9 @@ So, to avoid checking N*K times if the cluster has changed, we have the change f
 int attribution(int init){
     int change = 0;
     // At the start of each atribution, the algorithm must consider the clusters empty.
-<<<<<<< Updated upstream
-    int i = init;
-    for(; i<N ; i++){
-=======
     
     #pragma omp parallel for //schedule(dynamic)
     for(int i = init; i<N ; i++){
->>>>>>> Stashed changes
         float clusterMin = (float)RAND_MAX;
         int bestCluster = -1;
         for (int cluster=0; cluster<K; cluster++) {
@@ -128,19 +108,11 @@ int attribution(int init){
         //float oldYPos = y[clusterPos[bestCluster][clusterCurrentPos[bestCluster]]];
 
         float oldCluster = wichCluster[i];
-<<<<<<< Updated upstream
-        if(i > MAXN*(reallocSizeWich-1) - 5){
-
-            wichCluster = realloc(wichCluster, MAXN * reallocSizeWich * sizeof(float));
-            reallocSizeWich++;
-        }
-=======
         //if(i > MAXN*(reallocSizeWich-1) - 5){
 
 //            wichCluster = realloc(wichCluster, MAXN * reallocSizeWich * sizeof(float));
 //            reallocSizeWich++;
 //        }
->>>>>>> Stashed changes
             wichCluster[i] = bestCluster;
         // Check if the clusters has changed.
         if(oldCluster != bestCluster){
@@ -159,18 +131,6 @@ void geometricCenter(){
         sum_clusters_coord_X[cluster] = 0;
         sum_clusters_coord_Y[cluster] = 0;
         clusterCurrentPos[cluster] = -1;
-<<<<<<< Updated upstream
-    }
-
-    for(int i = 0; i < N; i++) {
-        int currentCluster = wichCluster[i];
-        //if (i < 30)
-        //printf("Cluster atual: %d\n", currentCluster);
-        sum_clusters_coord_X[currentCluster] += x[i];
-        sum_clusters_coord_Y[currentCluster] += y[i];
-        clusterCurrentPos[currentCluster] += 1;
-    }
-=======
     }
     //#pragma omp parallel for reduction(+:sum_clusters_coord_X[:4])
     for(int i = 0; i < N; i++) {
@@ -185,7 +145,6 @@ void geometricCenter(){
         int currentCluster = wichCluster[i];
         sum_clusters_coord_Y[currentCluster] += y[i];
     }
->>>>>>> Stashed changes
     for(int cluster = 0; cluster < K; cluster++) {
         //printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
         //printf("How mant clusters: %d \n ", clusterCurrentPos[cluster]);
@@ -201,11 +160,7 @@ void kmeans(){
     int iterationNumber = 0;
 
     // 3,4
-<<<<<<< Updated upstream
-    //int change = 1;// TRUE: 1; FALSE: 0 ;
-=======
     int change = 1;// TRUE: 1; FALSE: 0 ;
->>>>>>> Stashed changes
     while(iterationNumber < 21) {
     //while(change == 1) {
     //while(iterationNumber < 40) {
@@ -213,12 +168,7 @@ void kmeans(){
        // for(int i = 0; i < K; i++){
        //     printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterCurrentPos[i]);
        // }
-<<<<<<< Updated upstream
-        //change  = attribution(0);
-        attribution(0);
-=======
         change  = attribution(0);
->>>>>>> Stashed changes
         iterationNumber++;
     }
 
@@ -227,7 +177,12 @@ void kmeans(){
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterCurrentPos[i]+1);
     }
     printf("Iterations : %d\n", iterationNumber);
-
+    free(x); 
+    free(y);  
+    free(wichCluster);
+    free(clusterCurrentPos);
+    free(geometricCenterX);
+    free(geometricCenterY);
 }
 
 
