@@ -2,7 +2,13 @@
 //#define K 2  // 4
 //#define N 10000000
 //#define K 4  // 4
-#define MAXN 5000000
+//#define MAXN 5000000
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <omp.h>
+#include <math.h>
+
 
 void initialize(int N, int K, int T);
 void initialize2(int N, int K, int T);

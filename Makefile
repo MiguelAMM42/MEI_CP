@@ -12,6 +12,7 @@ CFLAGSVEC = -O3 -fopenmp  -Wall -Wextra -ftree-vectorize -msse4
 ASSEMBLY = -S -o
 ASSEMBLYLOOP = -O2 -g -Wall -Wextra -funroll-loops -S -o
 ASSEMBLYVEC = -O2 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
+ASSEMBLYTH = -O3 -fopenmp -Wall -Wextra -funroll-loops -S -o
 LIBS = -lm
 
 .DEFAULT_GOAL = k_means
@@ -39,6 +40,9 @@ assembly_loop:
 
 assembly_vec:
 	$(CC) $(ASSEMBLYVEC) $(BIN)k_means_assembly.s $(SRC)utils.c
+
+assembly_th:
+	$(CC) $(ASSEMBLYTH) $(BIN)k_means_assembly_th.s $(SRC)utils.c
 
 k_means: $(SRC)k_means.c $(BIN)utils.o
 	$(CC) $(CFLAGSLOOP) $(SRC)k_means.c $(BIN)utils.o -o $(BIN)$(EXEC) $(LIBS)
