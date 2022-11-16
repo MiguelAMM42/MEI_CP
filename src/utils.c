@@ -66,7 +66,7 @@ int attribution(int init, int N, int K, int T)
     int change = 0;
     // At the start of each atribution, the algorithm must consider the clusters empty.
     
-    #pragma omp parallel for 
+    #pragma omp parallel for num_threads(T)
     for(int i = init; i<N ; i++){
         int bestCluster = -1;
         float clusterMin = (float)RAND_MAX;
@@ -106,13 +106,12 @@ void geometricCenter(int N, int K, int T)
         clusterCurrentPos[cluster] = -1;
     }
     
-    #pragma omp parallel for reduction(+:clusterCurrentPos[:K]) reduction(+:sum_clusters_coord_X) reduction(+:sum_clusters_coord_Y)
+    #pragma omp parallel for reduction(+:clusterCurrentPos[:K]) reduction(+:sum_clusters_coord_X) reduction(+:sum_clusters_coord_Y) num_threads(T)
     for(int i = 0; i < N; i++) {
         int currentCluster = wichCluster[i];
         sum_clusters_coord_X[currentCluster] += x[i];
         sum_clusters_coord_Y[currentCluster] += y[i];
         clusterCurrentPos[currentCluster] += 1;
-        //#pragma omp atomic
     }
     for(int cluster = 0; cluster < K; cluster++) {
         //printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
