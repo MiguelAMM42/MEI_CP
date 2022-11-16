@@ -1,14 +1,7 @@
-//#define N 256 // 10 000 000
-//#define K 2  // 4
-//#define N 10000000
-//#define K 4  // 4
-//#define MAXN 5000000
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
 #include <math.h>
-
 
 void initialize(int N, int K, int T);
 void initialize2(int N, int K, int T);
@@ -19,22 +12,3 @@ void geometricCenter2(int N, int K, int T);
 void kmeans(int N, int K, int T); 
 
 
-
-/*
-
-//#define N 256 // 10 000 000
-//#define K 2  // 4
-#define N 10000000
-#define K 4  // 4
-#define MAXN 5000000
-
-void initialize();
-void initialize2();
-void testIniatialize();
-int attribution(int init);
-void geometricCenter();
-void geometricCenter2();
-void kmeans(); 
-
-
-*/

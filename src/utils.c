@@ -68,7 +68,6 @@ int attribution(int init, int N, int K, int T)
     
     #pragma omp parallel for 
     for(int i = init; i<N ; i++){
-        float best_dist[K]; 
         int bestCluster = -1;
         float clusterMin = (float)RAND_MAX;
         //#pragma omp parallel for // num_threads(K) //schedule(dynamic)

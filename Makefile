@@ -3,7 +3,8 @@ BIN = bin/
 SRC = src/
 INCLUDES = include/
 EXEC = k_means
-CP_CLUSTERS = 4
+EXEC_SEQ = k_means_seq
+EXEC_TH = k_means_th
 THREADS = 2
 
 CFLAGSBASE = -O3  -fopenmp -Wall -Wextra 
@@ -14,6 +15,8 @@ ASSEMBLYLOOP = -O2 -g -Wall -Wextra -funroll-loops -S -o
 ASSEMBLYVEC = -O2 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
 ASSEMBLYTH = -O3 -fopenmp -Wall -Wextra -funroll-loops -S -o
 LIBS = -lm
+SEQFLAGS= -O3 -Wall -Wextra -funroll-loops
+THFLAGS= -O3 -fopenmp -Wall -Wextra -funroll-loops
 
 .DEFAULT_GOAL = k_means
 
@@ -23,8 +26,11 @@ base_noflags: $(SRC)k_means.c $(BIN)utils.o
 base: $(SRC)k_means.c $(BIN)utils.o
 	$(CC) $(CFLAGSBASE) $(SRC)k_means.c $(BIN)utils.o -o $(BIN)$(EXEC) $(LIBS)
 
-$(BIN)utils.o: $(SRC)utils.c $(INCLUDES)utils.h
-	$(CC) $(CFLAGSLOOP) -c $(SRC)utils.c -o $(BIN)utils.o
+$(BIN)utilsSEQ.o: $(SRC)utils.c $(INCLUDES)utils.h
+	$(CC) $(SEQFLAGS) -c $(SRC)utils.c -o $(BIN)utilsSEQ.o
+
+$(BIN)utilsTH.o: $(SRC)utils.c $(INCLUDES)utils.h
+	$(CC) $(THFLAGS) -c $(SRC)utils.c -o $(BIN)utilsTH.o
 
 loop: $(SRC)k_means.c $(BIN)utils.o
 	$(CC) $(CFLAGSLOOP) $(SRC)k_means.c $(BIN)utils.o -o $(BIN)$(EXEC) $(LIBS)
@@ -44,17 +50,17 @@ assembly_vec:
 assembly_th:
 	$(CC) $(ASSEMBLYTH) $(BIN)k_means_assembly_th.s $(SRC)utils.c
 
-k_means: $(SRC)k_means.c $(BIN)utils.o
-	$(CC) $(CFLAGSLOOP) $(SRC)k_means.c $(BIN)utils.o -o $(BIN)$(EXEC) $(LIBS)
+k_means: $(SRC)k_means.c $(BIN)utilsSEQ.o $(BIN)utilsTH.o
+	$(CC) $(SEQFLAGS) $(SRC)k_means.c $(BIN)utilsSEQ.o -o $(BIN)$(EXEC_SEQ) $(LIBS)
+	$(CC) $(THFLAGS) $(SRC)k_means.c $(BIN)utilsTH.o -o $(BIN)$(EXEC_TH) $(LIBS)
 
 clean:
 	rm -r bin/*
 
-run:
-	./$(BIN)$(EXEC)
+
 
 runseq:
-	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS) 
+	./$(BIN)$(EXEC_SEQ) 10000000 $(CP_CLUSTERS) 
 
 runpar:
-	./$(BIN)$(EXEC) 10000000 $(CP_CLUSTERS) $(THREADS)
+	./$(BIN)$(EXEC_TH) 10000000 $(CP_CLUSTERS) $(THREADS)
