@@ -66,7 +66,7 @@ int attribution(int init, int N, int K, int T)
     int change = 0;
     // At the start of each atribution, the algorithm must consider the clusters empty.
     
-    //#pragma omp parallel for  //schedule(dynamic)
+    #pragma omp parallel for 
     for(int i = init; i<N ; i++){
         float best_dist[K]; 
         int bestCluster = -1;
@@ -76,7 +76,10 @@ int attribution(int init, int N, int K, int T)
             //float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
             //float distCluster = sqrt((x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster])*1.0); 
             //best_dist[cluster] = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
-            float distCluster = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
+            //float centerClusterX = geometricCenterX[cluster];
+            //float centerClusterY = geometricCenterY[cluster];
+            //float distCluster = (x[i] -centerClusterX )*(x[i] - centerClusterX) + (y[i] - centerClusterY)*(y[i] - centerClusterY) ;
+            float distCluster = (x[i] - geometricCenterX[cluster] )*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]) ;
             //float distCluster = pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2); 
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
@@ -87,10 +90,10 @@ int attribution(int init, int N, int K, int T)
         
         float oldCluster = wichCluster[i];
 
-         wichCluster[i] = bestCluster;
         // Check if the clusters has changed.
         if (oldCluster != bestCluster)
         {
+            wichCluster[i] = bestCluster;
             change = 1;
         }
     }
