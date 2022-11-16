@@ -73,14 +73,9 @@ int attribution(int init, int N, int K, int T)
         float clusterMin = (float)RAND_MAX;
         //#pragma omp parallel for // num_threads(K) //schedule(dynamic)
         for (int cluster=0; cluster<K; cluster++) {
-            //float distCluster = sqrt(pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2)*1.0); 
-            //float distCluster = sqrt((x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster])*1.0); 
-            //best_dist[cluster] = (x[i] - geometricCenterX[cluster])*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]); 
-            //float centerClusterX = geometricCenterX[cluster];
-            //float centerClusterY = geometricCenterY[cluster];
-            //float distCluster = (x[i] -centerClusterX )*(x[i] - centerClusterX) + (y[i] - centerClusterY)*(y[i] - centerClusterY) ;
+            
             float distCluster = (x[i] - geometricCenterX[cluster] )*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]) ;
-            //float distCluster = pow(geometricCenterX[cluster] - x[i], 2) + pow(geometricCenterY[cluster] - y[i], 2); 
+            
             if (distCluster <= clusterMin) {
                 clusterMin = distCluster;
                 bestCluster = cluster;
@@ -112,22 +107,15 @@ void geometricCenter(int N, int K, int T)
         sum_clusters_coord_Y[cluster] = 0;
         clusterCurrentPos[cluster] = -1;
     }
-    //int currentCluster; 
+    
     //#pragma omp parallel for reduction(+:clusterCurrentPos[:K]) reduction(+:sum_clusters_coord_X) reduction(+:sum_clusters_coord_Y)//private(currentCluster)//
     for(int i = 0; i < N; i++) {
         int currentCluster = wichCluster[i];
-        // if (i < 30)
-        // printf("Cluster atual: %d\n", currentCluster);
         sum_clusters_coord_X[currentCluster] += x[i];
         sum_clusters_coord_Y[currentCluster] += y[i];
         clusterCurrentPos[currentCluster] += 1;
         //#pragma omp atomic
     }
-    //#pragma omp parallel for reduction(+:sum_clusters_coord_Y) private(currentCluster)
-    //for(int i = 0; i < N; i++) {
-    //    currentCluster = wichCluster[i];
-    //    sum_clusters_coord_Y[currentCluster] += y[i];
-   // }
     for(int cluster = 0; cluster < K; cluster++) {
         //printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
         //printf("How mant clusters: %d \n ", clusterCurrentPos[cluster]);
@@ -149,11 +137,7 @@ void kmeans(int N, int K, int T)
     //while(change == 1) {
     //while(iterationNumber < 40) {
         geometricCenter(N,K,T);
-       // for(int i = 0; i < K; i++){
-       //     printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i],geometricCenterY[i],clusterCurrentPos[i]);
-       // }
         change  = attribution(0,N,K,T);
-        //attribution(0,N,K,T);
         iterationNumber++;
     }
 
@@ -162,7 +146,7 @@ void kmeans(int N, int K, int T)
     {
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i], geometricCenterY[i], clusterCurrentPos[i] + 1);
     }
-    printf("Iterations : %d\n", iterationNumber);
+    printf("Iterations : %d\n", iterationNumber-1);
     free(x);
     free(y);
     free(wichCluster);
