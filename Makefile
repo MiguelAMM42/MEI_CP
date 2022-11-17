@@ -5,7 +5,7 @@ INCLUDES = include/
 EXEC = k_means
 EXEC_SEQ = k_means_seq
 EXEC_TH = k_means_th
-THREADS = 1
+THREADS = 40
 
 CFLAGSBASE = -O3  -fopenmp -Wall -Wextra 
 CFLAGSLOOP = -O3 -fopenmp -Wall -Wextra -funroll-loops
