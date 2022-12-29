@@ -1,4 +1,5 @@
 CC = gcc
+# Depois substituir para mpicc?
 BIN = bin/
 SRC = src/
 INCLUDES = include/

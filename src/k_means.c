@@ -1,25 +1,21 @@
 
 #include "../include/utils.h"
 
+#include "mpi.h"
 
 int main(int argc,char* argv[]) {
+    char* argc1;
+    MPI_Init(&argc1, NULL);
     int N,K,T;
     char* p;
-    if (argc>=3){
-        N = strtol(argv[1], &p, 10);
-        K = strtol(argv[2], &p, 10);
-        if(argc==4){
-            T = strtol(argv[3], &p, 10);
-        }else {
-            T = -1;
-        }
+        N = 10000;
+        K = 4;
+        T = 1;
         initialize(N,K,T);
         //testIniatialize();  
         attribution(K,N,K,T);
         kmeans(N,K,T);
+
+    MPI_Finalize();
         return 0;
-    }else {
-        printf("Invalid number of arguments\n");
-        return 1;
-    }
 }

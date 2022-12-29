@@ -1,5 +1,6 @@
 #include "../include/utils.h"
 
+#include "mpi.h"
 /*
 In this two arrays we store all the samples.
 Each array has the x and y component of each sample.
@@ -63,10 +64,45 @@ So, to avoid checking N*K times if the cluster has changed, we have the change f
 */
 int attribution(int init, int N, int K, int T)
 {
+    int argc = 4;
     int change = 0;
     // At the start of each atribution, the algorithm must consider the clusters empty.
-    
-    #pragma omp parallel for num_threads(T)
+   int myID, value, size;
+    MPI_Status status;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    printf("Existem %d coisos \n", size);
+    int length_per_process = N/size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &myID); 
+   printf("AQUI, processo %d diz olá\n", myID) ;
+    // Master
+    if (myID == 0){
+        for (int p=0; p<size-1; p++) {
+            printf("Envia para %d\n", p+1);
+                    MPI_Send(&length_per_process , 1, MPI_INT, p+1,
+                             0, MPI_COMM_WORLD);
+                    //MPI_Send(geometricCenterX , K, MPI_FLOAT, p+1, p+1, MPI_COMM_WORLD);
+                    //MPI_Send(geometricCenterY , K, MPI_FLOAT, p+1, p+1, MPI_COMM_WORLD);
+            /*for (int i=0; i<length_per_process; i++)
+                {
+                    printf("Envia N");
+                } 
+                */
+        }
+    }
+
+    else {
+        printf("Filho recebe... %d\n", myID );
+        float *geometricCenterXLocal;
+        float *geometricCenterYLocal;
+        int msg;
+        MPI_Recv( &msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status );
+        //MPI_Recv(geometricCenterXLocal, K, MPI_FLOAT, 0, myID, MPI_COMM_WORLD, &status);
+        //MPI_Recv(geometricCenterYLocal, K, MPI_FLOAT, 0, myID, MPI_COMM_WORLD, &status);
+        printf("Recebi coisas?");
+        printf( "Received %d\n", msg);
+    }
+
+/*
     for(int i = init; i<N ; i++){
         int bestCluster = -1;
         float clusterMin = (float)RAND_MAX;
@@ -90,6 +126,8 @@ int attribution(int init, int N, int K, int T)
             change = 1;
         }
     }
+    */
+    printf("Finaliza proc: %d\n", myID);
     return change;
 }
 
@@ -136,6 +174,7 @@ void kmeans(int N, int K, int T)
         geometricCenter(N,K,T);
         change  = attribution(0,N,K,T);
         iterationNumber++;
+        printf("Fez mais uma iteração\n");
     }
 
     printf("N = %d, K = %d\n", N, K);
