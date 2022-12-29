@@ -1,4 +1,4 @@
-CC = gcc
+CC = mpicc
 # Depois substituir para mpicc?
 BIN = bin/
 SRC = src/

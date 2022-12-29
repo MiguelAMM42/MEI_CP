@@ -62,21 +62,13 @@ We keep other ways of checking distances so we could test in the future other ve
 Also, we have two cycles because we check here if the clusters has changes to the previous versions.
 So, to avoid checking N*K times if the cluster has changed, we have the change flag. When we find changes, we stop checking.
 */
-int attribution(int init, int N, int K, int T)
+int attribution(int init, int N, int K, int P)
 {
-    int argc = 4;
-    int change = 0;
     // At the start of each atribution, the algorithm must consider the clusters empty.
-   int myID, value, size;
-    MPI_Status status;
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    printf("Existem %d coisos \n", size);
-    int length_per_process = N/size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myID); 
-   printf("AQUI, processo %d diz olá\n", myID) ;
-    // Master
-    if (myID == 0){
-        for (int p=0; p<size-1; p++) {
+   // Master
+        MPI_Status status;
+    int length_per_process = N/P;
+        for (int p=0; p<P-1; p++) {
             printf("Envia para %d\n", p+1);
                     MPI_Send(&length_per_process , 1, MPI_INT, p+1,
                              0, MPI_COMM_WORLD);
@@ -88,8 +80,8 @@ int attribution(int init, int N, int K, int T)
                 } 
                 */
         }
-    }
 
+    /*
     else {
         printf("Filho recebe... %d\n", myID );
         float *geometricCenterXLocal;
@@ -101,6 +93,7 @@ int attribution(int init, int N, int K, int T)
         printf("Recebi coisas?");
         printf( "Received %d\n", msg);
     }
+    */
 
 /*
     for(int i = init; i<N ; i++){
@@ -127,8 +120,7 @@ int attribution(int init, int N, int K, int T)
         }
     }
     */
-    printf("Finaliza proc: %d\n", myID);
-    return change;
+    return 1;
 }
 
 // Calculate geometric centers.
@@ -161,7 +153,7 @@ void geometricCenter(int N, int K, int T)
 
 // 3,4
 // Main function
-void kmeans(int N, int K, int T)
+void kmeans(int N, int K, int T, int P)
 {
     // 0 already happen in main function
     int iterationNumber = 0;
@@ -172,7 +164,7 @@ void kmeans(int N, int K, int T)
     //while(change == 1) {
     //while(iterationNumber < 40) {
         geometricCenter(N,K,T);
-        change  = attribution(0,N,K,T);
+        change  = attribution(0,N,K,P);
         iterationNumber++;
         printf("Fez mais uma iteração\n");
     }
@@ -189,6 +181,20 @@ void kmeans(int N, int K, int T)
     free(clusterCurrentPos);
     free(geometricCenterX);
     free(geometricCenterY);
+}
+
+int attribution_aux() {
+        int msg;
+        MPI_Status status;
+        MPI_Recv( &msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status );
+        printf("Recebi coisas?");
+        printf( "Received %d\n", msg);
+}
+void kmeans_aux(int N, int K, int T){
+    while(1){
+       attribution_aux(); 
+
+    }
 }
 
 // Made with love ❤
