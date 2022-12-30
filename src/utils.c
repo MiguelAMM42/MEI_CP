@@ -66,43 +66,32 @@ int attribution(int init, int N, int K, int P)
 {
     // At the start of each atribution, the algorithm must consider the clusters empty.
     // Master
-    printf("Dados para calcular comprimento: %d %d\n", N, P - 1);
     int length_per_process = N / (P - 1);
-    int pos_atual = 0;
     int change = 0;
     for (int p = 0; p < P - 1; p++)
     {
-        printf("Envia para %d\n", p + 1);
         // Envia quantidade de números, depois pode-se remover
         MPI_Send(&length_per_process, 1, MPI_INT, p + 1,
                  0, MPI_COMM_WORLD);
         // Envia posição a partir da qual o outro deve analisar
-        MPI_Send(&pos_atual, 1, MPI_INT, p + 1,
-                 0, MPI_COMM_WORLD);
-        pos_atual += length_per_process;
         MPI_Send(geometricCenterX, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
         MPI_Send(geometricCenterY, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
     }
 
-    printf("Agora devia receber :) \n");
     for (int p = 0; p < P - 1; p++)
     {
         int pos_store;
         int this_change;
 
         // Recebe posição para começar a guardar
-        printf("Pai antes de receber uma coisa\n");
         MPI_Recv(&pos_store, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
-        printf("Pai depois de receber 2 coisa\n");
         // Change
 
         MPI_Recv(&this_change, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
         if (this_change > change)
             change = 1;
         // int *temp = malloc(length_per_process * sizeof(int));
-        printf("Pai depois de receber 3 coisa\n");
         MPI_Recv(&(wichCluster[pos_store]), length_per_process, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
-        printf("Pai depois de receber tudo\n");
     }
 
     return change;
@@ -167,6 +156,7 @@ void kmeans(int N, int K, int T, int P)
     {
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i], geometricCenterY[i], clusterCurrentPos[i] + 1);
     }
+    printf("Iterations : %d\n", iterationNumber - 1);
     int end = 0;
     for (int p = 0; p < P - 1; p++)
     {
@@ -176,7 +166,6 @@ void kmeans(int N, int K, int T, int P)
                  0, MPI_COMM_WORLD);
     }
 
-    printf("Iterations : %d\n", iterationNumber - 1);
     free(x);
     free(y);
     free(wichCluster);
@@ -185,26 +174,16 @@ void kmeans(int N, int K, int T, int P)
     free(geometricCenterY);
 }
 
-void attribution_aux(int N, int K, int myId, int firstNum)
+void attribution_aux(int N, int K, int pos_start, int firstNum)
 {
-    int pos_start;
     int change = 0;
     // Este depois pode ser removido e passado como argumento
     // O myID também é desnecessário
     int length_per_process = firstNum;
-    printf("Filho depois de receber uma coisa\n");
     // Envia posição a partir da qual o outro deve analisar
-    MPI_Recv(&pos_start, 1, MPI_INT, 0,
-             0, MPI_COMM_WORLD, &status);
 
-    printf("Filho depois de receber 2 coisa\n");
     MPI_Recv(geometricCenterX, K, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
-    printf("Filho depois de receber 3 coisa\n");
     MPI_Recv(geometricCenterY, K, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
-    for (int i = 0; i < K; i++)
-    {
-        printf("%f\n", geometricCenterX[i]);
-    }
     // Analisa o array do X e do Y, e descobre qual é o melhor cluster.
     for (int i = 0; i < length_per_process; i++)
     {
@@ -232,28 +211,22 @@ void attribution_aux(int N, int K, int myId, int firstNum)
         }
     }
 
-    printf("processo %d recebeu tudo\n", myId);
-    printf("Posição atual para calcular %d\n", pos_start);
     // Envia qual a posição atual para o master saber onde deve começar a guardar
 
     MPI_Send(&pos_start, 1, MPI_INT, 0,
              0, MPI_COMM_WORLD);
-    printf("Filho enviou 1 coisa\n");
     // Envia o valor de change
     MPI_Send(&change, 1, MPI_INT, 0,
              0, MPI_COMM_WORLD);
-    printf("Filho enviou 2 coisa\n");
     // Envia which Cluster
     MPI_Send(wichCluster, length_per_process, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    printf("Filho enviou tudo \n");
 }
-void kmeans_aux(int N, int K, int T, int myId)
+void kmeans_aux(int N, int K, int T, int pos_atual)
 {
     int iterationNumber = 0;
     while (iterationNumber < number_iteracions)
     {
         int first_num;
-        printf("Filho antes de receber uma coisa\n");
         MPI_Recv(&first_num, 1, MPI_INT, 0,
                  0, MPI_COMM_WORLD, &status);
         if (first_num == 0)
@@ -261,7 +234,7 @@ void kmeans_aux(int N, int K, int T, int myId)
             printf("FILHO DEVE ACABAR\n");
             break;
         }
-        attribution_aux(N, K, myId, first_num);
+        attribution_aux(N, K, pos_atual, first_num);
     }
     printf("Bye\n");
 }

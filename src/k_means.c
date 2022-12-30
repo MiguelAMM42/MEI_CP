@@ -9,14 +9,13 @@ int main(int argc, char *argv[])
     int myID, value, size;
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    printf("Existem %d coisos \n", size);
     MPI_Comm_rank(MPI_COMM_WORLD, &myID);
-    printf("AQUI, processo %d diz olá\n", myID);
     int N, K, T;
     char *p;
     N = 10000000;
     K = 4;
     T = 1;
+    int length_per_process = N / (size - 1);
     if (myID == 0)
     {
         initialize(N, K, T);
@@ -26,9 +25,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-        printf("Filho %d\n", myID);
+        int this_pos = (myID - 1) * length_per_process;
         initialize(N, K, T);
-        kmeans_aux(N, K, T, myID);
+        kmeans_aux(N, K, T, this_pos);
     }
 
     MPI_Finalize();
