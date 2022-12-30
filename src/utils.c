@@ -21,10 +21,11 @@ int *wichCluster;
 float *geometricCenterX;
 float *geometricCenterY;
 
-
+MPI_Status status;
 // 1(a) e (b)
 // Here we initialize all samples, and clusters.
-void initialize(int N, int K, int T){
+void initialize(int N, int K, int T)
+{
     x = malloc(N * sizeof(float));
     y = malloc(N * sizeof(float));
 
@@ -38,9 +39,10 @@ void initialize(int N, int K, int T){
     srand(10);
     float inv = (float)1 / (float)RAND_MAX;
     int i;
-    for(i=0; i<N; i++){
-        x[i] = (float)rand()*inv;
-        y[i] = (float)rand()*inv;
+    for (i = 0; i < N; i++)
+    {
+        x[i] = (float)rand() * inv;
+        y[i] = (float)rand() * inv;
     }
 
     for (int i = 0; i < K; i++)
@@ -54,8 +56,6 @@ void initialize(int N, int K, int T){
     }
 }
 
-
-
 /*
 Here we atribute the samples to the clusters.
 We keep other ways of checking distances so we could test in the future other versions of our program.
@@ -65,62 +65,47 @@ So, to avoid checking N*K times if the cluster has changed, we have the change f
 int attribution(int init, int N, int K, int P)
 {
     // At the start of each atribution, the algorithm must consider the clusters empty.
-   // Master
-        MPI_Status status;
-    int length_per_process = N/P;
-        for (int p=0; p<P-1; p++) {
-            printf("Envia para %d\n", p+1);
-                    MPI_Send(&length_per_process , 1, MPI_INT, p+1,
-                             0, MPI_COMM_WORLD);
-                    //MPI_Send(geometricCenterX , K, MPI_FLOAT, p+1, p+1, MPI_COMM_WORLD);
-                    //MPI_Send(geometricCenterY , K, MPI_FLOAT, p+1, p+1, MPI_COMM_WORLD);
-            /*for (int i=0; i<length_per_process; i++)
-                {
-                    printf("Envia N");
-                } 
-                */
-        }
-
-    /*
-    else {
-        printf("Filho recebe... %d\n", myID );
-        float *geometricCenterXLocal;
-        float *geometricCenterYLocal;
-        int msg;
-        MPI_Recv( &msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status );
-        //MPI_Recv(geometricCenterXLocal, K, MPI_FLOAT, 0, myID, MPI_COMM_WORLD, &status);
-        //MPI_Recv(geometricCenterYLocal, K, MPI_FLOAT, 0, myID, MPI_COMM_WORLD, &status);
-        printf("Recebi coisas?");
-        printf( "Received %d\n", msg);
+    // Master
+    printf("Dados para calcular comprimento: %d %d\n", N, P - 1);
+    int length_per_process = N / (P - 1);
+    int pos_atual = 0;
+    int change = 0;
+    for (int p = 0; p < P - 1; p++)
+    {
+        printf("Envia para %d\n", p + 1);
+        // Envia quantidade de números, depois pode-se remover
+        MPI_Send(&length_per_process, 1, MPI_INT, p + 1,
+                 0, MPI_COMM_WORLD);
+        // Envia posição a partir da qual o outro deve analisar
+        MPI_Send(&pos_atual, 1, MPI_INT, p + 1,
+                 0, MPI_COMM_WORLD);
+        pos_atual += length_per_process;
+        MPI_Send(geometricCenterX, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
+        MPI_Send(geometricCenterY, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
     }
-    */
 
-/*
-    for(int i = init; i<N ; i++){
-        int bestCluster = -1;
-        float clusterMin = (float)RAND_MAX;
-        for (int cluster=0; cluster<K; cluster++) {
-            
-            float distCluster = (x[i] - geometricCenterX[cluster] )*(x[i] - geometricCenterX[cluster]) + (y[i] - geometricCenterY[cluster])*(y[i] - geometricCenterY[cluster]) ;
-            
-            if (distCluster <= clusterMin) {
-                clusterMin = distCluster;
-                bestCluster = cluster;
-            }
-        }
-        
-        
-        float oldCluster = wichCluster[i];
+    printf("Agora devia receber :) \n");
+    for (int p = 0; p < P - 1; p++)
+    {
+        int pos_store;
+        int this_change;
 
-        // Check if the clusters has changed.
-        if (oldCluster != bestCluster)
-        {
-            wichCluster[i] = bestCluster;
+        // Recebe posição para começar a guardar
+        printf("Pai antes de receber uma coisa\n");
+        MPI_Recv(&pos_store, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
+        printf("Pai depois de receber 2 coisa\n");
+        // Change
+
+        MPI_Recv(&this_change, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
+        if (this_change > change)
             change = 1;
-        }
+        // int *temp = malloc(length_per_process * sizeof(int));
+        printf("Pai depois de receber 3 coisa\n");
+        MPI_Recv(&(wichCluster[pos_store]), length_per_process, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
+        printf("Pai depois de receber tudo\n");
     }
-    */
-    return 1;
+
+    return change;
 }
 
 // Calculate geometric centers.
@@ -135,21 +120,28 @@ void geometricCenter(int N, int K, int T)
         sum_clusters_coord_Y[cluster] = 0;
         clusterCurrentPos[cluster] = -1;
     }
-    
-    #pragma omp parallel for reduction(+:clusterCurrentPos[:K]) reduction(+:sum_clusters_coord_X) reduction(+:sum_clusters_coord_Y) num_threads(T)
-    for(int i = 0; i < N; i++) {
+
+#pragma omp parallel for reduction(+                                                                      \
+                                   : clusterCurrentPos[:K]) reduction(+                                   \
+                                                                      : sum_clusters_coord_X) reduction(+ \
+                                                                                                        : sum_clusters_coord_Y) num_threads(T)
+    for (int i = 0; i < N; i++)
+    {
         int currentCluster = wichCluster[i];
         sum_clusters_coord_X[currentCluster] += x[i];
         sum_clusters_coord_Y[currentCluster] += y[i];
         clusterCurrentPos[currentCluster] += 1;
     }
-    for(int cluster = 0; cluster < K; cluster++) {
-        //printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
-        //printf("How mant clusters: %d \n ", clusterCurrentPos[cluster]);
-        geometricCenterX[cluster] = sum_clusters_coord_X[cluster]/(clusterCurrentPos[cluster]+1);
-        geometricCenterY[cluster] = sum_clusters_coord_Y[cluster]/(clusterCurrentPos[cluster]+1);
+    for (int cluster = 0; cluster < K; cluster++)
+    {
+        // printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
+        // printf("How mant clusters: %d \n ", clusterCurrentPos[cluster]);
+        geometricCenterX[cluster] = sum_clusters_coord_X[cluster] / (clusterCurrentPos[cluster] + 1);
+        geometricCenterY[cluster] = sum_clusters_coord_Y[cluster] / (clusterCurrentPos[cluster] + 1);
     }
 }
+
+int number_iteracions = 50;
 
 // 3,4
 // Main function
@@ -159,14 +151,15 @@ void kmeans(int N, int K, int T, int P)
     int iterationNumber = 0;
 
     // 3,4
-    int change = 1;// TRUE: 1; FALSE: 0 ;
-    while(iterationNumber < 21 && change) {
-    //while(change == 1) {
-    //while(iterationNumber < 40) {
-        geometricCenter(N,K,T);
-        change  = attribution(0,N,K,P);
+    int change = 1; // TRUE: 1; FALSE: 0 ;
+    while (iterationNumber < number_iteracions && change)
+    {
+        // while(change == 1) {
+        // while(iterationNumber < 40) {
+        geometricCenter(N, K, T);
+        change = attribution(0, N, K, P);
         iterationNumber++;
-        printf("Fez mais uma iteração\n");
+        printf("Fez mais uma iteração %d\n", iterationNumber);
     }
 
     printf("N = %d, K = %d\n", N, K);
@@ -174,7 +167,16 @@ void kmeans(int N, int K, int T, int P)
     {
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i], geometricCenterY[i], clusterCurrentPos[i] + 1);
     }
-    printf("Iterations : %d\n", iterationNumber-1);
+    int end = 0;
+    for (int p = 0; p < P - 1; p++)
+    {
+        printf("Envia FIM para %d\n", p + 1);
+        // Envia quantidade de números, depois pode-se remover
+        MPI_Send(&end, 1, MPI_INT, p + 1,
+                 0, MPI_COMM_WORLD);
+    }
+
+    printf("Iterations : %d\n", iterationNumber - 1);
     free(x);
     free(y);
     free(wichCluster);
@@ -183,18 +185,85 @@ void kmeans(int N, int K, int T, int P)
     free(geometricCenterY);
 }
 
-int attribution_aux() {
-        int msg;
-        MPI_Status status;
-        MPI_Recv( &msg, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, &status );
-        printf("Recebi coisas?");
-        printf( "Received %d\n", msg);
-}
-void kmeans_aux(int N, int K, int T){
-    while(1){
-       attribution_aux(); 
+void attribution_aux(int N, int K, int myId, int firstNum)
+{
+    int pos_start;
+    int change = 0;
+    // Este depois pode ser removido e passado como argumento
+    // O myID também é desnecessário
+    int length_per_process = firstNum;
+    printf("Filho depois de receber uma coisa\n");
+    // Envia posição a partir da qual o outro deve analisar
+    MPI_Recv(&pos_start, 1, MPI_INT, 0,
+             0, MPI_COMM_WORLD, &status);
 
+    printf("Filho depois de receber 2 coisa\n");
+    MPI_Recv(geometricCenterX, K, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
+    printf("Filho depois de receber 3 coisa\n");
+    MPI_Recv(geometricCenterY, K, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
+    for (int i = 0; i < K; i++)
+    {
+        printf("%f\n", geometricCenterX[i]);
     }
+    // Analisa o array do X e do Y, e descobre qual é o melhor cluster.
+    for (int i = 0; i < length_per_process; i++)
+    {
+        int bestCluster = -1;
+        int pos_atual = i + pos_start;
+        float clusterMin = (float)RAND_MAX;
+        for (int cluster = 0; cluster < K; cluster++)
+        {
+
+            float distCluster = (x[pos_atual] - geometricCenterX[cluster]) * (x[pos_atual] - geometricCenterX[cluster]) + (y[pos_atual] - geometricCenterY[cluster]) * (y[pos_atual] - geometricCenterY[cluster]);
+
+            if (distCluster <= clusterMin)
+            {
+                clusterMin = distCluster;
+                bestCluster = cluster;
+            }
+        }
+        float oldCluster = wichCluster[i];
+
+        // Check if the clusters has changed.
+        if (oldCluster != bestCluster)
+        {
+            wichCluster[i] = bestCluster;
+            change = 1;
+        }
+    }
+
+    printf("processo %d recebeu tudo\n", myId);
+    printf("Posição atual para calcular %d\n", pos_start);
+    // Envia qual a posição atual para o master saber onde deve começar a guardar
+
+    MPI_Send(&pos_start, 1, MPI_INT, 0,
+             0, MPI_COMM_WORLD);
+    printf("Filho enviou 1 coisa\n");
+    // Envia o valor de change
+    MPI_Send(&change, 1, MPI_INT, 0,
+             0, MPI_COMM_WORLD);
+    printf("Filho enviou 2 coisa\n");
+    // Envia which Cluster
+    MPI_Send(wichCluster, length_per_process, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    printf("Filho enviou tudo \n");
+}
+void kmeans_aux(int N, int K, int T, int myId)
+{
+    int iterationNumber = 0;
+    while (iterationNumber < number_iteracions)
+    {
+        int first_num;
+        printf("Filho antes de receber uma coisa\n");
+        MPI_Recv(&first_num, 1, MPI_INT, 0,
+                 0, MPI_COMM_WORLD, &status);
+        if (first_num == 0)
+        {
+            printf("FILHO DEVE ACABAR\n");
+            break;
+        }
+        attribution_aux(N, K, myId, first_num);
+    }
+    printf("Bye\n");
 }
 
 // Made with love ❤

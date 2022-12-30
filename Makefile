@@ -1,19 +1,18 @@
-CC = mpicc
-# Depois substituir para mpicc?
+CC = mpiexec
 BIN = bin/
 SRC = src/
 INCLUDES = include/
 EXEC = k_means
 EXEC_SEQ = k_means_seq
 EXEC_TH = k_means_th
-THREADS = 40
+THREADS = 1
 
 CFLAGSBASE = -O3  -fopenmp -Wall -Wextra 
 CFLAGSLOOP = -O3 -fopenmp -Wall -Wextra -funroll-loops
 CFLAGSVEC = -O3 -fopenmp  -Wall -Wextra -ftree-vectorize -msse4
 ASSEMBLY = -S -o
-ASSEMBLYLOOP = -O3 -g -Wall -Wextra -funroll-loops -S -o
-ASSEMBLYVEC = -O3 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
+ASSEMBLYLOOP = -O2 -g -Wall -Wextra -funroll-loops -S -o
+ASSEMBLYVEC = -O2 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
 ASSEMBLYTH = -O3 -fopenmp -Wall -Wextra -funroll-loops -S -o
 LIBS = -lm
 SEQFLAGS= -O3 -Wall -Wextra -funroll-loops
