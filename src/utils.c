@@ -68,11 +68,10 @@ int attribution(int init, int N, int K, int P)
     // Master
     int length_per_process = N / (P - 1);
     int change = 0;
+    MPI_Bcast(&length_per_process, 1, MPI_INT, 0, MPI_COMM_WORLD);
     for (int p = 0; p < P - 1; p++)
     {
         // Envia quantidade de números, depois pode-se remover
-        MPI_Send(&length_per_process, 1, MPI_INT, p + 1,
-                 0, MPI_COMM_WORLD);
         // Envia posição a partir da qual o outro deve analisar
         MPI_Send(geometricCenterX, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
         MPI_Send(geometricCenterY, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
@@ -158,6 +157,7 @@ void kmeans(int N, int K, int T, int P)
     }
     printf("Iterations : %d\n", iterationNumber - 1);
     int end = 0;
+    /*
     for (int p = 0; p < P - 1; p++)
     {
         printf("Envia FIM para %d\n", p + 1);
@@ -165,6 +165,8 @@ void kmeans(int N, int K, int T, int P)
         MPI_Send(&end, 1, MPI_INT, p + 1,
                  0, MPI_COMM_WORLD);
     }
+    */
+    MPI_Bcast(&end, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     free(x);
     free(y);
@@ -227,8 +229,7 @@ void kmeans_aux(int N, int K, int T, int pos_atual)
     while (iterationNumber < number_iteracions)
     {
         int first_num;
-        MPI_Recv(&first_num, 1, MPI_INT, 0,
-                 0, MPI_COMM_WORLD, &status);
+        MPI_Bcast(&first_num, 1, MPI_INT, 0, MPI_COMM_WORLD);
         if (first_num == 0)
         {
             printf("FILHO DEVE ACABAR\n");
