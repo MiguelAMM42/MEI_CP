@@ -69,13 +69,13 @@ int attribution(int init, int N, int K, int P)
     int length_per_process = N / (P - 1);
     int change = 0;
     MPI_Bcast(&length_per_process, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    for (int p = 0; p < P - 1; p++)
-    {
-        // Envia quantidade de números, depois pode-se remover
-        // Envia posição a partir da qual o outro deve analisar
-        MPI_Send(geometricCenterX, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
-        MPI_Send(geometricCenterY, K, MPI_FLOAT, p + 1, 0, MPI_COMM_WORLD);
-    }
+    // for (int p = 0; p < P - 1; p++)
+    //{
+    //  Envia quantidade de números, depois pode-se remover
+    //  Envia posição a partir da qual o outro deve analisar
+    MPI_Bcast(geometricCenterX, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(geometricCenterY, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    //}
 
     for (int p = 0; p < P - 1; p++)
     {
@@ -184,8 +184,8 @@ void attribution_aux(int N, int K, int pos_start, int firstNum)
     int length_per_process = firstNum;
     // Envia posição a partir da qual o outro deve analisar
 
-    MPI_Recv(geometricCenterX, K, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
-    MPI_Recv(geometricCenterY, K, MPI_FLOAT, 0, 0, MPI_COMM_WORLD, &status);
+    MPI_Bcast(geometricCenterX, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(geometricCenterY, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
     // Analisa o array do X e do Y, e descobre qual é o melhor cluster.
     for (int i = 0; i < length_per_process; i++)
     {
