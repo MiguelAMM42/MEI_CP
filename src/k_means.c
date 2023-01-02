@@ -15,7 +15,9 @@ int main(int argc, char *argv[])
     N = 10000000;
     K = 4;
     T = 1;
-    int length_per_process = N / (size - 1);
+    int length_per_process = N / (size);
+    int this_pos = (myID)*length_per_process;
+    printf("Olá do processo: %d || %d \n", myID, this_pos);
     if (myID == 0)
     {
         initialize(N, K, T);
@@ -25,7 +27,6 @@ int main(int argc, char *argv[])
     }
     else
     {
-        int this_pos = (myID - 1) * length_per_process;
         initialize(N, K, T);
         kmeans_aux(N, K, T, this_pos);
     }

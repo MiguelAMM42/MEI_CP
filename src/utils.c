@@ -43,6 +43,8 @@ void initialize(int N, int K, int T)
     {
         x[i] = (float)rand() * inv;
         y[i] = (float)rand() * inv;
+        // Provavelmente depois vai ser para tirar
+        wichCluster[i] = -1;
     }
 
     for (int i = 0; i < K; i++)
@@ -66,7 +68,7 @@ int attribution(int init, int N, int K, int P)
 {
     // At the start of each atribution, the algorithm must consider the clusters empty.
     // Master
-    int length_per_process = N / (P - 1);
+    int length_per_process = N / (P);
     int change = 0;
     MPI_Bcast(&length_per_process, 1, MPI_INT, 0, MPI_COMM_WORLD);
     // for (int p = 0; p < P - 1; p++)
@@ -76,21 +78,47 @@ int attribution(int init, int N, int K, int P)
     MPI_Bcast(geometricCenterX, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
     MPI_Bcast(geometricCenterY, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
     //}
-
-    for (int p = 0; p < P - 1; p++)
+    for (int i = 0; i < length_per_process; i++)
     {
-        int pos_store;
+        int bestCluster = -1;
+        // Aqui a posição atual é igual ao i, porque estamos no master
+        int pos_atual = i;
+        float clusterMin = (float)RAND_MAX;
+        for (int cluster = 0; cluster < K; cluster++)
+        {
+
+            float distCluster = (x[pos_atual] - geometricCenterX[cluster]) * (x[pos_atual] - geometricCenterX[cluster]) + (y[pos_atual] - geometricCenterY[cluster]) * (y[pos_atual] - geometricCenterY[cluster]);
+
+            if (distCluster <= clusterMin)
+            {
+                clusterMin = distCluster;
+                bestCluster = cluster;
+            }
+        }
+        float oldCluster = wichCluster[i];
+
+        // Check if the clusters has changed.
+        if (oldCluster != bestCluster)
+        {
+            wichCluster[i] = bestCluster;
+            change = 1;
+        }
+    }
+
+    for (int p = 1; p < P - 1; p++)
+    {
+        int pos_store = p * length_per_process;
         int this_change;
 
         // Recebe posição para começar a guardar
-        MPI_Recv(&pos_store, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
+        // MPI_Recv(&pos_store, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
         // Change
 
-        MPI_Recv(&this_change, 1, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
+        MPI_Recv(&this_change, 1, MPI_INT, p, 0, MPI_COMM_WORLD, &status);
         if (this_change > change)
             change = 1;
         // int *temp = malloc(length_per_process * sizeof(int));
-        MPI_Recv(&(wichCluster[pos_store]), length_per_process, MPI_INT, p + 1, 0, MPI_COMM_WORLD, &status);
+        MPI_Recv(&(wichCluster[pos_store]), length_per_process, MPI_INT, p, 0, MPI_COMM_WORLD, &status);
     }
 
     return change;
@@ -168,12 +196,21 @@ void kmeans(int N, int K, int T, int P)
     */
     MPI_Bcast(&end, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    free(x);
-    free(y);
-    free(wichCluster);
-    free(clusterCurrentPos);
-    free(geometricCenterX);
-    free(geometricCenterY);
+    /*
+        printf("Fim 1\n");
+        free(x);
+        printf("Fim 2\n");
+        free(y);
+        printf("Fim 3\n");
+        // free(wichCluster);
+        printf("Fim 4\n");
+        free(clusterCurrentPos);
+        printf("Fim 5\n");
+        free(geometricCenterX);
+        printf("Fim 6\n");
+        free(geometricCenterY);
+        printf("Fim 7\n");
+        */
 }
 
 void attribution_aux(int N, int K, int pos_start, int firstNum)
@@ -186,11 +223,16 @@ void attribution_aux(int N, int K, int pos_start, int firstNum)
 
     MPI_Bcast(geometricCenterX, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
     MPI_Bcast(geometricCenterY, K, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    int i;
     // Analisa o array do X e do Y, e descobre qual é o melhor cluster.
-    for (int i = 0; i < length_per_process; i++)
+    for (int i; i < length_per_process; i++)
     {
         int bestCluster = -1;
         int pos_atual = i + pos_start;
+        if (pos_atual >= N)
+        {
+            break;
+        }
         float clusterMin = (float)RAND_MAX;
         for (int cluster = 0; cluster < K; cluster++)
         {
@@ -214,15 +256,16 @@ void attribution_aux(int N, int K, int pos_start, int firstNum)
     }
 
     // Envia qual a posição atual para o master saber onde deve começar a guardar
-
-    MPI_Send(&pos_start, 1, MPI_INT, 0,
-             0, MPI_COMM_WORLD);
+    // MPI_Send(&pos_start, 1, MPI_INT, 0,
+    //         0, MPI_COMM_WORLD);
     // Envia o valor de change
     MPI_Send(&change, 1, MPI_INT, 0,
              0, MPI_COMM_WORLD);
     // Envia which Cluster
-    MPI_Send(wichCluster, length_per_process, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(wichCluster, i, MPI_INT, 0, 0, MPI_COMM_WORLD);
 }
+
+// Falta dar free aqui, nos outros processor
 void kmeans_aux(int N, int K, int T, int pos_atual)
 {
     int iterationNumber = 0;
