@@ -118,9 +118,10 @@ int attribution(int init, int N, int K, int P)
         if (this_change > change)
             change = 1;
         // int *temp = malloc(length_per_process * sizeof(int));
-        MPI_Recv(&(wichCluster[pos_store]), length_per_process, MPI_INT, p, 0, MPI_COMM_WORLD, &status);
+        // MPI_Recv(&(wichCluster[pos_store]), length_per_process, MPI_INT, p, 0, MPI_COMM_WORLD, &status);
     }
 
+    MPI_Gather(&(wichCluster[0]), length_per_process, MPI_INT, wichCluster, length_per_process, MPI_INT, 0, MPI_COMM_WORLD);
     return change;
 }
 
@@ -262,7 +263,8 @@ void attribution_aux(int N, int K, int pos_start, int firstNum)
     MPI_Send(&change, 1, MPI_INT, 0,
              0, MPI_COMM_WORLD);
     // Envia which Cluster
-    MPI_Send(wichCluster, i, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    // MPI_Send(wichCluster, i, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Gather(&(wichCluster[pos_start]), length_per_process, MPI_INT, wichCluster, length_per_process, MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 // Falta dar free aqui, nos outros processor
