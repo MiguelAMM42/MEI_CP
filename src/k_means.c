@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     else
     {
         initialize(N, K, T);
-        kmeans_aux(N, K, T, this_pos);
+        kmeans_aux(N, K, T, this_pos, length_per_process);
     }
 
     MPI_Finalize();
