@@ -15,7 +15,6 @@ int *clusterCurrentPos;
 
 // Says to wich cluster each sample belongs
 int *wichCluster;
-int *wichCluster_temp;
 
 // In the next two arrays we store the geometric center of each cluster.
 // Each array stores the x and y component of each geometric center.
@@ -33,7 +32,6 @@ void initialize(int N, int K, int T)
     clusterCurrentPos = malloc(K * sizeof(int));
 
     wichCluster = malloc(N * sizeof(int));
-    wichCluster_temp = malloc(N * sizeof(int));
 
     geometricCenterX = malloc(K * sizeof(float));
     geometricCenterY = malloc(K * sizeof(float));
@@ -110,13 +108,9 @@ void geometricCenter(int N, int K, int T, int pos_start, int length_per_process)
     // printf("Processo atual: %d\n", pos_start);
     for (int cluster = 0; cluster < K; cluster++)
     {
-        // printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
-        // printf("How mant clusters: %d \n ", clusterCurrentPos[cluster]);
         geometricCenterX[cluster] = sum_clusters_coord_X_final[cluster] / (clusterCurrentPos_final[cluster] + 1);
         geometricCenterY[cluster] = sum_clusters_coord_Y_final[cluster] / (clusterCurrentPos_final[cluster] + 1);
         clusterCurrentPos[cluster] = clusterCurrentPos_final[cluster];
-        // printf("Centro geométrico calculado X: %f\n", geometricCenterX[cluster]);
-        // printf("Centro geométrico calculado y: %f\n", geometricCenterY[cluster]);
     }
 }
 
@@ -190,10 +184,10 @@ void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
     {
         geometricCenter(N, K, T, pos_atual, length_per_process);
         iterationNumber++;
-        if (pos_atual == 0)
-        {
-            printf("Fez mais uma iteração %d\n", iterationNumber);
-        }
+        // if (pos_atual == 0)
+        // {
+        //     printf("Fez mais uma iteração %d\n", iterationNumber);
+        // }
         continueCycle = attribution_aux(N, K, pos_atual, length_per_process);
     }
     printf("N = %d, K = %d\n", N, K);
@@ -205,21 +199,12 @@ void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
     printf("Iterations : %d\n", iterationNumber - 1);
     printf("Bye\n");
     // Falta dar frees
-    /*
-    printf("Fim 1\n");
-        free(x);
-        printf("Fim 2\n");
-        free(y);
-        printf("Fim 3\n");
-        // free(wichCluster);
-        printf("Fim 4\n");
-        free(clusterCurrentPos);
-        printf("Fim 5\n");
-        free(geometricCenterX);
-        printf("Fim 6\n");
-        free(geometricCenterY);
-        printf("Fim 7\n");
-    */
+    free(x);
+    free(y);
+    free(wichCluster);
+    free(clusterCurrentPos);
+    free(geometricCenterX);
+    free(geometricCenterY);
 }
 
 // Made with love ❤
