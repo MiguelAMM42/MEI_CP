@@ -98,13 +98,10 @@ void geometricCenter(int N, int K, int T, int pos_start, int length_per_process)
     float sum_clusters_coord_X_final[K];
     float sum_clusters_coord_Y_final[K];
     int clusterCurrentPos_final[K];
-    for (int i = 0; i < K; i++)
-    {
 
-        MPI_Allreduce(&(sum_clusters_coord_X[i]), &(sum_clusters_coord_X_final[i]), 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
-        MPI_Allreduce(&(sum_clusters_coord_Y[i]), &(sum_clusters_coord_Y_final[i]), 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
-        MPI_Allreduce(&(clusterCurrentPos[i]), &(clusterCurrentPos_final[i]), 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-    }
+    MPI_Allreduce((sum_clusters_coord_X), (sum_clusters_coord_X_final), 4, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce((sum_clusters_coord_Y), (sum_clusters_coord_Y_final), 4, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce((clusterCurrentPos), (clusterCurrentPos_final), 4, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     // printf("Processo atual: %d\n", pos_start);
     for (int cluster = 0; cluster < K; cluster++)
     {
