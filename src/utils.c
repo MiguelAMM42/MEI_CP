@@ -107,12 +107,16 @@ void geometricCenter(int N, int K, int T, int pos_start, int length_per_process)
         MPI_Allreduce(&(sum_clusters_coord_Y[i]), &(sum_clusters_coord_Y_final[i]), 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
         MPI_Allreduce(&(clusterCurrentPos[i]), &(clusterCurrentPos_final[i]), 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     }
+    // printf("Processo atual: %d\n", pos_start);
     for (int cluster = 0; cluster < K; cluster++)
     {
         // printf("Sum clusters: %f | %f\n ", sum_clusters_coord_X[cluster], sum_clusters_coord_Y[cluster]);
         // printf("How mant clusters: %d \n ", clusterCurrentPos[cluster]);
         geometricCenterX[cluster] = sum_clusters_coord_X_final[cluster] / (clusterCurrentPos_final[cluster] + 1);
         geometricCenterY[cluster] = sum_clusters_coord_Y_final[cluster] / (clusterCurrentPos_final[cluster] + 1);
+        clusterCurrentPos[cluster] = clusterCurrentPos_final[cluster];
+        // printf("Centro geométrico calculado X: %f\n", geometricCenterX[cluster]);
+        // printf("Centro geométrico calculado y: %f\n", geometricCenterY[cluster]);
     }
 }
 
@@ -135,12 +139,7 @@ int attribution_aux(int N, int K, int pos_start, int length_per_process)
         float clusterMin = (float)RAND_MAX;
         for (int cluster = 0; cluster < K; cluster++)
         {
-            if (i == length_per_process - 1)
-            {
-                printf("\n\nProcesso: %d\n", pos_start);
-                printf("Centro geométrico X: %f\n", geometricCenterX[cluster]);
-                printf("Centro geométrico Y: %f\n", geometricCenterY[cluster]);
-            }
+
             float distCluster = (x[pos_atual] - geometricCenterX[cluster]) * (x[pos_atual] - geometricCenterX[cluster]) + (y[pos_atual] - geometricCenterY[cluster]) * (y[pos_atual] - geometricCenterY[cluster]);
 
             if (distCluster <= clusterMin)
@@ -149,12 +148,12 @@ int attribution_aux(int N, int K, int pos_start, int length_per_process)
                 bestCluster = cluster;
             }
         }
-        float oldCluster = wichCluster[i];
+        float oldCluster = wichCluster[pos_atual];
 
         // Check if the clusters has changed.
         if (oldCluster != bestCluster)
         {
-            wichCluster[i] = bestCluster;
+            wichCluster[pos_atual] = bestCluster;
             change = 1;
         }
     }
@@ -169,8 +168,14 @@ int attribution_aux(int N, int K, int pos_start, int length_per_process)
     // Envia which Cluster
     // MPI_Send(wichCluster, i, MPI_INT, 0, 0, MPI_COMM_WORLD);
 
-    MPI_Allgather(&(wichCluster[pos_start]), length_per_process, MPI_INT, wichCluster_temp, length_per_process, MPI_INT, MPI_COMM_WORLD);
-    wichCluster = wichCluster_temp;
+    MPI_Allgather(&(wichCluster[pos_start]), length_per_process, MPI_INT, wichCluster, length_per_process, MPI_INT, MPI_COMM_WORLD);
+    /*printf("\n\nProcesso: %d\n", pos_start);
+    for (int i = 0; i < 5; i++)
+    {
+        printf("Wich cluster: %d\n", wichCluster[i]);
+    }
+    */
+    // wichCluster = wichCluster_temp;
 
     return global_change;
 }
@@ -181,7 +186,7 @@ void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
     attribution_aux(N, K, pos_atual, length_per_process);
     int iterationNumber = 0;
     int continueCycle = 1;
-    while (continueCycle > 0 && iterationNumber < 40)
+    while (continueCycle > 0 && iterationNumber < 45)
     {
         geometricCenter(N, K, T, pos_atual, length_per_process);
         iterationNumber++;
