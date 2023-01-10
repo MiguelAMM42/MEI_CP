@@ -7,8 +7,8 @@ Each array has the x and y component of each sample.
 We use align to improve vetorization.
 This array's are constant during the execution of the programme.
 */
-float *x __attribute__((aligned(32)));
-float *y __attribute__((aligned(32)));
+float *x ;
+float *y ;
 
 // In this array we store the current position occupied in the clusterPos matrix.
 int *clusterCurrentPos;
@@ -21,7 +21,7 @@ int *wichCluster;
 float *geometricCenterX;
 float *geometricCenterY;
 
-int T1 = 4;
+int T1 = 1;
 
 MPI_Status status;
 // 1(a) e (b)
@@ -135,7 +135,7 @@ int attribution(int N, int K, int T, int pos_start, int length_per_process)
             continue;
         }
         float clusterMin = (float)RAND_MAX;
-#pragma omp parallel for num_threads(T1) reduction(+:change)
+#pragma omp parallel for num_threads(T1) reduction(max:change)
         for (int cluster = 0; cluster < K; cluster++)
         {
 
@@ -153,7 +153,7 @@ int attribution(int N, int K, int T, int pos_start, int length_per_process)
         if (oldCluster != bestCluster)
         {
             wichCluster[pos_atual] = bestCluster;
-            change += 1;
+            change = 1;
         }
     }
 
@@ -167,7 +167,7 @@ int attribution(int N, int K, int T, int pos_start, int length_per_process)
     // Envia which Cluster
     // MPI_Send(wichCluster, i, MPI_INT, 0, 0, MPI_COMM_WORLD);
 
-    MPI_Allgather(&(wichCluster[pos_start]), length_per_process, MPI_INT, wichCluster, length_per_process, MPI_INT, MPI_COMM_WORLD);
+    //MPI_Allgather(&(wichCluster[pos_start]), length_per_process, MPI_INT, wichCluster, length_per_process, MPI_INT, MPI_COMM_WORLD);
     /*printf("\n\nProcesso: %d\n", pos_start);
     for (int i = 0; i < 5; i++)
     {
@@ -189,10 +189,10 @@ void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
     {
         geometricCenter(N, K, T, pos_atual, length_per_process);
         iterationNumber++;
-        // if (pos_atual == 0)
-        // {
-        //     printf("Fez mais uma iteração %d\n", iterationNumber);
-        // }
+        if (pos_atual == 0)
+        {
+        printf("Fez mais uma iteração %d\n", iterationNumber);
+        }
         continueCycle = attribution(N, K, T, pos_atual, length_per_process);
     }
     printf("N = %d, K = %d\n", N, K);
