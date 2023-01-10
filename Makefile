@@ -1,4 +1,4 @@
-CC = mpiexec
+CC = mpicc
 BIN = bin/
 SRC = src/
 INCLUDES = include/
@@ -15,7 +15,7 @@ ASSEMBLYLOOP = -O2 -g -Wall -Wextra -funroll-loops -S -o
 ASSEMBLYVEC = -O2 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
 ASSEMBLYTH = -O3 -fopenmp -Wall -Wextra -funroll-loops -S -o
 LIBS = -lm
-SEQFLAGS= -O3 -Wall -Wextra -funroll-loops
+SEQFLAGS=  -fopenmp -O3 -Wall -Wextra -funroll-loops
 THFLAGS= -O3 -fopenmp -Wall -Wextra -funroll-loops
 
 .DEFAULT_GOAL = k_means

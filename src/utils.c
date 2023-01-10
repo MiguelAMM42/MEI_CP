@@ -21,6 +21,8 @@ int *wichCluster;
 float *geometricCenterX;
 float *geometricCenterY;
 
+int T1 = 4;
+
 MPI_Status status;
 // 1(a) e (b)
 // Here we initialize all samples, and clusters.
@@ -78,13 +80,17 @@ void geometricCenter(int N, int K, int T, int pos_start, int length_per_process)
         sum_clusters_coord_Y[cluster] = 0;
         clusterCurrentPos[cluster] = -1;
     }
-
+#pragma omp parallel for reduction(+                                                                      \
+                                   : clusterCurrentPos[:K]) reduction(+                                   \
+                                                                      : sum_clusters_coord_X) reduction(+ \
+                                                                                                        : sum_clusters_coord_Y) num_threads(T1)
     for (int i = 0; i < length_per_process; i++)
     {
         int pos_atual = i + pos_start;
         if (pos_atual >= N)
         {
-            break;
+            printf("Passou aqui?\n");
+            continue;
         }
         int currentCluster = wichCluster[pos_atual];
         sum_clusters_coord_X[currentCluster] += x[pos_atual];
@@ -111,7 +117,7 @@ void geometricCenter(int N, int K, int T, int pos_start, int length_per_process)
     }
 }
 
-int attribution_aux(int N, int K, int pos_start, int length_per_process)
+int attribution(int N, int K, int T, int pos_start, int length_per_process)
 {
     int change = 0;
     // Este depois pode ser removido e passado como argumento
@@ -125,9 +131,11 @@ int attribution_aux(int N, int K, int pos_start, int length_per_process)
         int pos_atual = i + pos_start;
         if (pos_atual >= N)
         {
-            break;
+            printf("Passou aqui?\n");
+            continue;
         }
         float clusterMin = (float)RAND_MAX;
+#pragma omp parallel for num_threads(T1) reduction(+:change)
         for (int cluster = 0; cluster < K; cluster++)
         {
 
@@ -145,7 +153,7 @@ int attribution_aux(int N, int K, int pos_start, int length_per_process)
         if (oldCluster != bestCluster)
         {
             wichCluster[pos_atual] = bestCluster;
-            change = 1;
+            change += 1;
         }
     }
 
@@ -174,7 +182,7 @@ int attribution_aux(int N, int K, int pos_start, int length_per_process)
 // Falta dar free aqui, nos outros processor
 void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
 {
-    attribution_aux(N, K, pos_atual, length_per_process);
+    attribution(N, K, T, pos_atual, length_per_process);
     int iterationNumber = 0;
     int continueCycle = 1;
     while (continueCycle > 0 && iterationNumber < 45)
@@ -185,7 +193,7 @@ void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
         // {
         //     printf("Fez mais uma iteração %d\n", iterationNumber);
         // }
-        continueCycle = attribution_aux(N, K, pos_atual, length_per_process);
+        continueCycle = attribution(N, K, T, pos_atual, length_per_process);
     }
     printf("N = %d, K = %d\n", N, K);
     for (int i = 0; i < K; i++)
