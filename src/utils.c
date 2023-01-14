@@ -89,7 +89,7 @@ void geometricCenter(int N, int K, int T, int pos_start, int length_per_process)
         int pos_atual = i + pos_start;
         if (pos_atual >= N)
         {
-            printf("Passou aqui?\n");
+            //printf("Passou aqui?\n");
             continue;
         }
         int currentCluster = wichCluster[pos_atual];
@@ -131,7 +131,7 @@ int attribution(int N, int K, int T, int pos_start, int length_per_process)
         int pos_atual = i + pos_start;
         if (pos_atual >= N)
         {
-            printf("Passou aqui?\n");
+            //printf("Passou aqui?\n");
             continue;
         }
         float clusterMin = (float)RAND_MAX;
@@ -191,18 +191,18 @@ void kmeans_aux(int N, int K, int T, int pos_atual, int length_per_process)
         iterationNumber++;
         if (pos_atual == 0)
         {
-        printf("Fez mais uma iteração %d\n", iterationNumber);
+        //printf("Fez mais uma iteração %d\n", iterationNumber);
         }
         continueCycle = attribution(N, K, T, pos_atual, length_per_process);
     }
-    printf("N = %d, K = %d\n", N, K);
+    //printf("N = %d, K = %d\n", N, K);
     for (int i = 0; i < K; i++)
     {
         printf("Processo: %d\n", pos_atual);
         printf("Center: (%.3f , %.3f) : Size: %d\n", geometricCenterX[i], geometricCenterY[i], clusterCurrentPos[i] + 1);
     }
     printf("Iterations : %d\n", iterationNumber - 1);
-    printf("Bye\n");
+    //printf("Bye\n");
     // Falta dar frees
     free(x);
     free(y);

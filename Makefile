@@ -1,11 +1,13 @@
 CC = mpicc
+MPIRUN = mpirun
 BIN = bin/
 SRC = src/
+HOSTFILES = hostFiles/
 INCLUDES = include/
 EXEC = k_means
 EXEC_SEQ = k_means_seq
 EXEC_TH = k_means_th
-THREADS = 1
+##THREADS = 1
 
 CFLAGSBASE = -O3  -fopenmp -Wall -Wextra 
 CFLAGSLOOP = -O3 -fopenmp -Wall -Wextra -funroll-loops
@@ -15,8 +17,13 @@ ASSEMBLYLOOP = -O2 -g -Wall -Wextra -funroll-loops -S -o
 ASSEMBLYVEC = -O2 -g -Wall -Wextra -ftree-vectorize -msse4 -S -o
 ASSEMBLYTH = -O3 -fopenmp -Wall -Wextra -funroll-loops -S -o
 LIBS = -lm
-SEQFLAGS=  -fopenmp -O3 -Wall -Wextra -funroll-loops
-THFLAGS= -O3 -fopenmp -Wall -Wextra -funroll-loops
+SEQFLAGS=  -fopenmp -O3 -Wall -funroll-loops
+THFLAGS= -O3 -fopenmp -Wall -funroll-loops
+NP = -np
+MB_CORE = --map-by core
+HF = --hostfile
+NODESLOTS =node_slots
+
 
 .DEFAULT_GOAL = k_means
 
@@ -60,7 +67,7 @@ clean:
 
 
 runseq:
-	./$(BIN)$(EXEC_SEQ) 10000000 $(CP_CLUSTERS) 
+	$(MPIRUN) $(HF) $(HOSTFILES)$(NODESLOTS)$(PROCESSES) $(NP) $(PROCESSES) $(MB_CORE) $(BIN)$(EXEC_SEQ) $(N_SIZE) $(CP_CLUSTERS) 
 
 runpar:
-	./$(BIN)$(EXEC_TH) 10000000 $(CP_CLUSTERS) $(THREADS)
+	$(MPIRUN) $(HF) $(HOSTFILES)$(NODESLOTS)$(PROCESSES) $(NP) $(PROCESSES) $(MB_CORE) $(BIN)$(EXEC_TH) $(N_SIZE) $(CP_CLUSTERS) $(THREADS)
