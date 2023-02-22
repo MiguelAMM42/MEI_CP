@@ -5,4 +5,4 @@ Trabalho realizado na disciplina de Computação paralela, que consistia em otim
 - Implementar paralelismo com openMP, tendo em conta data races;
 - Implementar uma versão paralela com MPI.
 
-A análise das várias etapas encontra-se descrita nos relatórios.
+A análise das várias etapas encontra-se descrita nos relatórios da pasta Reports.
